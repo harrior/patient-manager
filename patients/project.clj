@@ -1,7 +1,6 @@
 (defproject patients "0.1.0-SNAPSHOT"
   :description "Health Samurai Test Task by Sizov Sergey"
-  :license {:name "EPL-2.0 OR GPL-2.0-or-later WITH Classpath-exception-2.0"
-            :url "https://www.eclipse.org/legal/epl-2.0/"}
+
   :dependencies [;; Standart libs
                  [org.clojure/clojure "1.11.1"]
                  [org.clojure/data.json "2.4.0"]
@@ -11,18 +10,32 @@
                  ;; HTTP-server 
                  [ring "1.9.6"]
                  [compojure "1.7.0"]
-                 [ring/ring-jetty-adapter "1.9.6"]
 
-                 ;; Frontend
-                 [hiccup "1.0.5"]]
+                 ;; ----- ClojureScript --------
+                 [thheller/shadow-cljs "2.20.20"]
+                 [reagent "1.1.1"]
+                 [re-frame "1.3.0"]
+
+                 ;; Re-Frame debugger
+                 [re-frisk "1.6.0"]
+                 
+                 ;; Fix dependencies
+                 [com.fzakaria/slf4j-timbre "0.2"]]
+
+  :plugins [[thheller/shadow-cljs "2.20.20"]]
 
   :source-paths ["src/clj" "src/cljs"]
 
   :resource-paths ["resources"]
 
-  :main ^:skip-aot patients.core
+  :main patients.core/-main
 
   :target-path "target/%s"
-  :profiles {:uberjar {:aot :all
-                       :source-paths ["src/clj" "src/cljs"]
-                       :jvm-opts ["-Dclojure.compiler.direct-linking=true"]}})
+
+  :profiles {:shadow-cljs
+             {:dependencies [[shadow-cljs/devtools "2.20.20"]]
+              :plugins [[lein-shadow "0.4.1"]]
+              :source-paths ["src/cjls"]
+              :prep-tasks ["compile"]
+              :builds {}
+              :shadow-cljs {:config-files ["shadow-cljs.edn"]}}})

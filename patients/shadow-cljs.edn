@@ -1,0 +1,17 @@
+{:lein true
+ :nrepl {:port 7979}
+ 
+ :dependencies
+ [[reagent "1.1.1"]]
+
+ :source-paths
+ ["src"]
+
+ :builds
+ {:app {:target :browser
+        :output-dir "resources/public/js"
+        :asset-path "/js"
+        :modules {:main {:entries [patients.core]}}}
+  :re-frisk
+  {:target :browser
+   :devtools {:preloads [re-frisk.preload]}}}}

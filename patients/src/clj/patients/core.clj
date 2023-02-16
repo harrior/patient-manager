@@ -5,8 +5,11 @@
   (:gen-class))
 
 
-(defn -main
-  [& args]
+(def PORT 8000)
+
+
+(defn -main 
+  []
   (jetty/run-jetty routes/app
-                   {:port 8080
+                   {:port PORT
                     :join? true}))
