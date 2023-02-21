@@ -14,4 +14,7 @@
         :modules {:main {:entries [patients.core]}}}
   :re-frisk
   {:target :browser
+   :output-dir "resources/public/js"
+   :asset-path "/js"
+   :modules {:main {:entries [patients.core]}}
    :devtools {:preloads [re-frisk.preload]}}}}
