@@ -1,11 +1,14 @@
 (defproject patients "0.1.0-SNAPSHOT"
   :description "Health Samurai Test Task by Sizov Sergey"
 
-  :dependencies [;; Standart libs
+  :dependencies [;; Common libs
                  [org.clojure/clojure "1.11.1"]
-                 [org.clojure/data.json "2.4.0"]
+                 [metosin/jsonista "0.3.7"]
 
                  ;; Database
+                 [org.postgresql/postgresql "42.1.4"]
+                 [com.github.seancorfield/next.jdbc "1.3.847"]
+                 [com.github.seancorfield/honeysql "2.4.980"]
 
                  ;; HTTP-server 
                  [ring "1.9.6"]
@@ -18,7 +21,7 @@
 
                  ;; Re-Frame debugger
                  [re-frisk "1.6.0"]
-                 
+
                  ;; Fix dependencies
                  [com.fzakaria/slf4j-timbre "0.2"]]
 

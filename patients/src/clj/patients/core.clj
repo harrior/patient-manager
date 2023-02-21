@@ -1,15 +1,17 @@
 (ns patients.core
   (:require
    [ring.adapter.jetty :as jetty]
-   [patients.routes :as routes])
+   [patients.routes :as routes]
+   
+   [patients.config :as config]
+   [patients.db])
   (:gen-class))
-
-
-(def PORT 8000)
 
 
 (defn -main 
   []
+  (println (str "Start web-server localhost:" (str config/PORT)))
   (jetty/run-jetty routes/app
-                   {:port PORT
-                    :join? true}))
+                   {:port config/PORT
+                    :join? false})
+  (println (str "Web-server started.")))
