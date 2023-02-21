@@ -3,21 +3,23 @@
 
   :dependencies [;; Common libs
                  [org.clojure/clojure "1.11.1"]
+                 [org.clojure/tools.logging "1.2.4"]
                  [metosin/jsonista "0.3.7"]
 
                  ;; Database
-                 [org.postgresql/postgresql "42.1.4"]
                  [com.github.seancorfield/next.jdbc "1.3.847"]
                  [com.github.seancorfield/honeysql "2.4.980"]
+                 [org.postgresql/postgresql "42.1.4"]
 
-                 ;; HTTP-server 
+                 ;; HTTP-server
                  [ring "1.9.6"]
                  [compojure "1.7.0"]
+                 [fogus/ring-edn "0.3.0"]
 
                  ;; ----- ClojureScript --------
-                 [thheller/shadow-cljs "2.20.20"]
                  [reagent "1.1.1"]
                  [re-frame "1.3.0"]
+                 [thheller/shadow-cljs "2.20.20"]
 
                  ;; Re-Frame debugger
                  [re-frisk "1.6.0"]
