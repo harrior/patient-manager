@@ -1,4 +1,5 @@
 (ns patients.core
+  "Namespace for handling patient data and serving it through a web application."
   (:require
    [ring.adapter.jetty :as jetty]
    [patients.routes :as routes]
@@ -8,7 +9,8 @@
   (:gen-class))
 
 (defn -main
-  [_]
+  "Starts a web server on the specified port."
+  [& _]
   (println (str "Start web-server localhost:" (str config/PORT)))
   (jetty/run-jetty #'routes/app
                      {:port config/PORT

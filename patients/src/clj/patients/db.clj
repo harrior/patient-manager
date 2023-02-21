@@ -1,4 +1,5 @@
 (ns patients.db
+  "Namespace for connecting to the patients database and performing migrations."
   (:require [next.jdbc :as jdbc]
             [patients.db-jsonb]
             [patients.config :as config]))

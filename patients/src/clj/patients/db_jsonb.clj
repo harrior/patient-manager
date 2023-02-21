@@ -1,12 +1,14 @@
 (ns patients.db-jsonb
+  "This namespace provides functions for working with JSON/JSONB PostgreSQL field types.
+   It includes functions for converting Clojure data to and from PGobject objects containing JSON,
+   as well as protocols for use with the `next.jdbc` library to allow Clojure data to be used with
+   PostgreSQL's `json` and `jsonb` types.
+   Details: https://github.com/seancorfield/next-jdbc/blob/develop/doc/tips-and-tricks.md#working-with-json-and-jsonb"
   (:require [jsonista.core :as json]
             [next.jdbc.prepare :as prepare]
             [next.jdbc.result-set :as rs])
   (:import (org.postgresql.util PGobject)
            [java.sql PreparedStatement]))
-
-;; Next functions are used for implementing auto-transformation for JSON/JSONB PostgreSQL field types.
-;; https://github.com/seancorfield/next-jdbc/blob/develop/doc/tips-and-tricks.md#working-with-json-and-jsonb
 
 (set! *warn-on-reflection* true)
 
