@@ -19,3 +19,5 @@ node_modules/
 resources/public/js/
 .DS_Store
 package-lock.json
+.env
+.calva/
