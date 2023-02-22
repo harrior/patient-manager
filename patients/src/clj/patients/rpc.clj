@@ -2,7 +2,8 @@
   "Namespace for handling RPC requests related to the Patients database."
   (:require [clojure.tools.logging :as log]
             [next.jdbc.sql :as sql]
-            [patients.db :as patients.db]))
+            [patients.db :as patients.db]
+            [patients.validate :as validate]))
 
 (defn generate-response
   "Returns a response map containing the status, headers, and body.
@@ -66,7 +67,8 @@
    :patient-data - the patient data (EDN) to insert into the database
    Returns UUID of created patient."
   [{:keys [db patient-data]}]
-  ;; TODO: Add data validation
+  (when-not (validate/validate-patient patient-data)
+    (throw  (Exception. ":not-valid-patient-date")))
   (let [new-patient-uuid (java.util.UUID/randomUUID)
         data {:id new-patient-uuid
               :patient (assoc patient-data :identifier new-patient-uuid)}]
@@ -97,6 +99,8 @@
   [{:keys [db patient-identifier patient-data]}]
   (when-not (string? patient-identifier)
     (throw (Exception. ":incorrect-patient-identifier")))
+  (when-not (validate/validate-patient patient-data)
+    (throw  (Exception. ":not-valid-patient-date")))
   (let [patient-uuid (parse-uuid patient-identifier)
 
         patient (-> (sql/get-by-id db :patients patient-uuid)
