@@ -11,3 +11,7 @@
    :host "localhost"
    :user "postgres"
    :password "postgres"})
+
+(def migratus-config {:store :database
+                      :migration-dir "migrations"
+                      :db db-spec})

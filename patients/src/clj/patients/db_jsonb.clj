@@ -4,9 +4,9 @@
    as well as protocols for use with the `next.jdbc` library to allow Clojure data to be used with
    PostgreSQL's `json` and `jsonb` types.
    Details: https://github.com/seancorfield/next-jdbc/blob/develop/doc/tips-and-tricks.md#working-with-json-and-jsonb"
-  (:require [jsonista.core :as json]
-            [next.jdbc.prepare :as prepare]
-            [next.jdbc.result-set :as rs])
+  (:require [next.jdbc.prepare :as prepare]
+            [next.jdbc.result-set :as rs]
+            [jsonista.core :as json])
   (:import (org.postgresql.util PGobject)
            [java.sql PreparedStatement]))
 

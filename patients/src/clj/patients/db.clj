@@ -1,6 +1,7 @@
 (ns patients.db
   "Namespace for connecting to the patients database and performing migrations."
-  (:require [next.jdbc :as jdbc]
+  (:require [migratus.core :as migratus]
+            [next.jdbc :as jdbc]
             [patients.db-jsonb]
             [patients.config :as config]))
 
@@ -9,7 +10,8 @@
 (def db-conn (jdbc/get-datasource config/db-spec))
 (println "Connected.")
 
-;; NOTE: may be needs move migarion to diffrent file
 (println "Make migrations")
-(jdbc/execute! db-conn ["CREATE TABLE IF NOT EXISTS patients (id UUID NOT NULL PRIMARY KEY, patient JSONB NOT NULL DEFAULT '{}')"])
+(migratus/init config/migratus-config)
+(migratus/migrate config/migratus-config)
+#_(jdbc/execute! db-conn ["CREATE TABLE IF NOT EXISTS patients (id UUID NOT NULL PRIMARY KEY, patient JSONB NOT NULL DEFAULT '{}')"])
 (println "End migrations")
