@@ -4,7 +4,9 @@
 (def PORT 8000)
 
 ;; FIXIT: make loading params from ENV
-(def db-spec
+(def
+  ^{:doc "Configuration for Database."}
+  db-spec
   "A map containing the database connection details"
   {:dbtype "postgresql"
    :dbname "medicine"
@@ -12,6 +14,9 @@
    :user "postgres"
    :password "postgres"})
 
-(def migratus-config {:store :database
-                      :migration-dir "migrations"
-                      :db db-spec})
+(def
+  ^{:doc "Configuraton for Migratus."}
+  migratus-config
+  {:store :database
+   :migration-dir "migrations"
+   :db db-spec})

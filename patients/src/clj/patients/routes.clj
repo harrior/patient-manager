@@ -1,10 +1,10 @@
 (ns patients.routes
   "Namespace for defining the routes and request handler."
-  (:require [patients.rpc :as rpc]
-            [compojure.core :refer [GET POST defroutes]]
+  (:require [compojure.core :refer [GET POST defroutes]]
             [compojure.route :refer [not-found resources]]
             [ring.middleware.edn :as edn]
-            [ring.util.response :refer [redirect]]))
+            [ring.util.response :refer [redirect]]
+            [patients.rpc :as rpc]))
 
 (defroutes handler
   "Defines the routes and request handlers"

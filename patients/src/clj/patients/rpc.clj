@@ -1,6 +1,7 @@
 (ns patients.rpc
   "Namespace for handling RPC requests related to the Patients database."
-  (:require [next.jdbc.sql :as sql]
+  (:require [clojure.tools.logging :as log]
+            [next.jdbc.sql :as sql]
             [patients.db :as patients.db]))
 
 (defn generate-response
@@ -86,7 +87,6 @@
                           :next.jdbc/update-count)]
     (when (= deleted-count 0)
       (throw (Exception. ":user-not-found")))
-
     (generate-response {:status :ok})))
 
 (defn update-patient
@@ -123,8 +123,7 @@
       - :body: A string representation of the response data.
 
   Raises:
-    Exception: If the `method` is not recognized or if an exception is thrown while executing the RPC method.
-  "
+    Exception: If the `method` is not recognized or if an exception is thrown while executing the RPC method."
   [method params]
   (try
     (let [ext-params (merge params
@@ -136,5 +135,7 @@
         :delete-patient (delete-patient ext-params)
         :update-patient (update-patient ext-params)
         (throw (Exception. (str "Method " method " not implemented.")))))
-    (catch Exception e (generate-response {:status :error
-                                           :data {:text (.getMessage e)}}))))
+    (catch Exception e (do (log/debug (format "Wrong rpc request. Method %s. Params %s Error: %s"
+                                              method params (.getMessage e)))
+                           (generate-response {:status :error
+                                               :data {:text (.getMessage e)}})))))
