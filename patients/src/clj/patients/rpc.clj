@@ -5,6 +5,8 @@
             [patients.db :as patients.db]
             [patients.validate :as validate]))
 
+;; Responce
+
 (defn generate-response
   "Returns a response map containing the status, headers, and body.
    :status - status of response (:ok or :error)
@@ -28,17 +30,43 @@
                         (when-not (nil? data)
                           {:data data})))})
 
+;; Serialisers
+
+(defn patient-serialiser
+  "Serialises patient data.
+   Accepts a `patient` record, and returns a serialised flat map of patient data"
+  [patient]
+  (let [patient* (:patients/patient patient)
+        insurance-number (:insurance-number patient*)
+        fullname (-> patient*
+                     :name
+                     first
+                     :text)
+        address (-> patient*
+                    :address
+                    first
+                    :text)
+        gender (:gender patient*)
+        birth-date (:birth-date patient*)]
+    {:insurance-number insurance-number
+     :fullname fullname
+     :address address
+     :gender gender
+     :birth-date birth-date}))
+
+;; API Methods
+
 (defn list-patients
   "Returns a response containing a list of patients.
    :db - the JDBC database connection
    :limit - the maximum number of patients to return
    :offset - the index of the first patient to return
-   Returns list of patients' maps."
+   Returns serialised list of patients' maps."
   [{:keys [db limit offset]}]
   (let [patients
         (->> (sql/find-by-keys db :patients :all {:limit limit
                                                   :offset offset})
-             (map :patients/patient))]
+             (map patient-serialiser))]
     (generate-response {:status :ok
                         :data {:patients patients}})))
 
@@ -111,6 +139,8 @@
     (sql/update! db :patients {:patient patient-data} {:id patient-uuid})
     (generate-response {:status :ok
                         :data {:patients patient-data}})))
+
+;; RPC Router
 
 (defn rpc
   "Executes an RPC method specified by the `method` keyword with the given parameters `params`.
