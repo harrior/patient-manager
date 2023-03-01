@@ -47,12 +47,14 @@
                     first
                     :text)
         gender (:gender patient*)
-        birth-date (:birth-date patient*)]
+        birth-date (:birth-date patient*)
+        identifier (:identifier patient*)]
     {:insurance-number insurance-number
      :fullname fullname
      :address address
      :gender gender
-     :birth-date birth-date}))
+     :birth-date birth-date
+     :identifier identifier}))
 
 ;; API Methods
 
