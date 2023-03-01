@@ -33,9 +33,13 @@
 
 (rf/reg-event-db
  :init-table
- (fn [db [_ [table-id fields]]]
-   (let [table-filds (map :value fields)]
-     (assoc-in db [table-id :fields] table-filds))))
+ (fn [db [_ [table-id fields sorted-by]]]
+   (let [table-filds (map :value fields)
+         table-settings (table-id db)
+         new-setings {:fields table-filds
+                      :sorted-by sorted-by}]
+     (assoc db table-id (merge table-settings
+                               new-setings) ))))
 
 (rf/reg-event-db
  :update-table-search
@@ -70,6 +74,11 @@
  (fn [db [_ table-id]]
    (get-in db [table-id :search])))
 
+(rf/reg-sub
+ :get-table-sorted-by
+ (fn [db [_ table-id]]
+   (get-in db [table-id :sorted-by])))
+
 
 (rf/reg-sub
  :table-filtered-items
@@ -77,9 +86,9 @@
    [(rf/subscribe [sub])
     (rf/subscribe [:get-table-filters table-id])
     (rf/subscribe [:get-table-search-value table-id])
-    (rf/subscribe [:get-table-fields table-id])])
- (fn [[items filters search-value table-fields]]
-   (println search-value)
+    (rf/subscribe [:get-table-fields table-id])
+    (rf/subscribe [:get-table-sorted-by table-id])])
+ (fn [[items filters search-value table-fields sorted-by]]
    (let [filtered-items (if (seq filters)
                          (filter (fn [item] (matches-all-filters? item filters))
                                  items)
@@ -91,7 +100,7 @@
                                      (match-string-in-item-values? search-value)))
                                filtered-items)
                        filtered-items)]
-     found-items)))
+     (sort sorted-by found-items))))
 
 ;;
 ;; Components
@@ -102,7 +111,7 @@
   [:div {:class "table-controls"}
    [:div {:class "table-buttons"}
     (for [button buttons]
-      button)]
+      ^{:key button} button)]
    [:div {:class "search-box"}
     [:input {:class "table-column-filter-input form-control"
              :placeholder (locale :app/search-placeholder)
@@ -112,11 +121,10 @@
                                   (rf/dispatch [:update-table-search [id input-value]])))}]]])
 
 (defn table
-  [{:keys [id sub fields]}]
-  (rf/dispatch [:init-table [id fields]])
+  [{:keys [id sub fields sorted-by]}]
+  (rf/dispatch [:init-table [id fields sorted-by]])
   (let [items @(rf/subscribe [sub])
-        filters @(rf/subscribe [:table-filtered-items id sub])
-        _ (println filters)]
+        filters @(rf/subscribe [:table-filtered-items id sub])]
     [:table {:class "table"}
      [:thead
       [:tr {:class "table-header"}
