@@ -22,6 +22,12 @@
                  [re-frame "1.3.0"]
                  [thheller/shadow-cljs "2.20.20"]
 
+                 ;; HTTP-client
+                 [day8.re-frame/http-fx "0.2.4"]
+
+                 ;; Ajax client
+                 [cljs-ajax "0.8.4"]
+
                  ;; Re-Frame debugger
                  [re-frisk "1.6.0"]
 
