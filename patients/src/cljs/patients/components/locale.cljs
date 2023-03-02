@@ -5,7 +5,7 @@
         :app/add-patient "Добавить пациента"
         :app/edit-patient "Редактировать пациента"
         :app/search-placeholder "Поиск"
-        :app/create "Создать"
+        :app/create-patient "Создать"
         :app/save "Сохранить"
         :app/patient-data "Данные пациента"
         :app/patient-address "Адрес"
@@ -21,7 +21,7 @@
         :address/state "Область\\Край"
         :address/line "Адрес"
         :address/text "Адрес"
-        :address/postalCode "Индекс"
+        :address/postal-code "Индекс"
         :address/district "Район"}})
 
 (defn locale

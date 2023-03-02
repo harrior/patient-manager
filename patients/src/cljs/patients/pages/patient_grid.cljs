@@ -36,7 +36,7 @@
 
 (rf/reg-event-fx
  :request-patients-list
- (fn [{:keys [db]} _]
+ (fn [_ _]
    {:http-xhrio {:method          :post
                  :uri             "http://localhost:8000/rpc"
                  :params          {:method :list-patients}
@@ -50,7 +50,8 @@
 ;; Patients grid page
 ;;
 
-(rf/dispatch-sync [:request-patients-list])
+(defn init []
+  (rf/dispatch-sync [:request-patients-list]))
 
 (defn patient-grid-page
   []
@@ -85,3 +86,8 @@
                       :value :insurance-number
                       :filter-type :input}]}]]
    [:footer {:class "footer"}]])
+
+(defn main
+  []
+  (init)
+  [patient-grid-page])
