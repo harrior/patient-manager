@@ -42,12 +42,12 @@
                                new-setings) ))))
 
 (rf/reg-event-db
- :update-table-search
+ :set-table-search
  (fn [db [_ [table-id val]]]
    (assoc-in db [table-id :search] val)))
 
 (rf/reg-event-db
- :update-table-filters
+ :set-table-filters
  (fn [db [_ [table-id field val]]]
    (let [last-filter (get-in db [table-id :filters])
          new-filter (if (= val "")
@@ -111,14 +111,12 @@
   [:div {:class "table-controls"}
    [:div {:class "table-buttons"}
     (for [button buttons]
-      ^{:key button} button)]
+      button)]
    [:div {:class "search-box"}
     [:input {:class "table-column-filter-input form-control"
              :placeholder (locale :app/search-placeholder)
-             :on-change (fn [e] (let [input-value (-> e
-                                                      .-target
-                                                      .-value)]
-                                  (rf/dispatch [:update-table-search [id input-value]])))}]]])
+             :on-change (fn [e] (let [input-value (input-value-extractor e)]
+                                  (rf/dispatch [:set-table-search [id input-value]])))}]]])
 
 (defn table
   [{:keys [id sub fields sorted-by]}]
@@ -135,7 +133,7 @@
           [:div {:class "table-column-filter"}]
           (let [value (:value field)
                 on-change-fn (fn [event] (let [input-value (input-value-extractor event)]
-                                           (rf/dispatch [:update-table-filters [id value input-value]])))]
+                                           (rf/dispatch [:set-table-filters [id value input-value]])))]
             (case (:filter-type field)
               :input [:input {:class "table-column-filter-input form-control"
                               :id value
@@ -149,6 +147,10 @@
                                   :on-change on-change-fn}
                          (map (fn [value] ^{:key value} [:option {:value value} value])
                               (conj options ""))])
+              :date [:input {:class "table-column-filter-input form-control"
+                             :type :date
+                             :id value
+                             :on-change on-change-fn}]
               [:div]))])]]
      [:tbody
       (for [item filters]
