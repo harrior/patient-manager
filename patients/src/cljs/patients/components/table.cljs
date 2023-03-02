@@ -2,7 +2,8 @@
   (:require
    [clojure.string :as s]
    [re-frame.core :as rf]
-   [patients.components.locale :refer [locale]]))
+   [patients.components.locale :refer [locale]]
+   [patients.components.helpers :as h]))
 
 ;;
 ;; Helpers
@@ -20,12 +21,6 @@
   [item search-value]
   (let [search-pattern (re-pattern search-value)]
     (some #(re-find search-pattern (str %)) (vals item))))
-
-(defn- input-value-extractor
-  [event]
-  (-> event
-      .-target
-      .-value))
 
 ;;
 ;; Events
@@ -115,7 +110,7 @@
    [:div {:class "search-box"}
     [:input {:class "table-column-filter-input form-control"
              :placeholder (locale :app/search-placeholder)
-             :on-change (fn [e] (let [input-value (input-value-extractor e)]
+             :on-change (fn [e] (let [input-value (h/input-value-extractor e)]
                                   (rf/dispatch [:set-table-search [id input-value]])))}]]])
 
 (defn table
@@ -132,7 +127,7 @@
           [:div {:class "table-column-text"} (locale (:title field))]
           [:div {:class "table-column-filter"}]
           (let [value (:value field)
-                on-change-fn (fn [event] (let [input-value (input-value-extractor event)]
+                on-change-fn (fn [event] (let [input-value (h/input-value-extractor event)]
                                            (rf/dispatch [:set-table-filters [id value input-value]])))]
             (case (:filter-type field)
               :input [:input {:class "table-column-filter-input form-control"
