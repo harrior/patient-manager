@@ -58,8 +58,9 @@
     :or {path []}}]
   ^{:key field-id}
   [:label (locale label)
-   [:select {:class "form-control"
-             :id field-id
+   [:select {:id field-id
+             :class "form-control"
+             :value @(rf/subscribe [:get-input-value form-id field-id path])
              :on-change (if on-change
                           on-change
                           (fn [event] (rf/dispatch [:set-input-value
@@ -79,9 +80,10 @@
     :or {path []}}]
   ^{:key field-id}
   [:label (locale label)
-   [:input {:type :date
+   [:input {:id field-id
+            :type :date
             :class "form-control"
-            :id field-id
+            :value @(rf/subscribe [:get-input-value form-id field-id path])
             :on-change (if on-change
                          on-change
                          (fn [event] (rf/dispatch [:set-input-value
