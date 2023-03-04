@@ -156,7 +156,7 @@
               [:div]))])]]
      [:tbody
       (for [item filters]
-        ^{:key item}
+        ^{:key (random-uuid)}
         [:tr
          (merge
           {:class "table-row"}
