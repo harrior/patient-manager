@@ -9,9 +9,8 @@
 
 (rf/reg-event-db
  :set-input-value
- (fn [db [_ form-id field-id path value]]
-   (let [full-path (flatten [form-id path field-id])]
-     (assoc-in db full-path value))))
+ (fn [db [_ form-id field-id value]]
+   (assoc-in db [form-id field-id] value)))
 
 ;;
 ;; Subs
@@ -19,9 +18,8 @@
 
 (rf/reg-sub
  :get-input-value
- (fn [db [_ form-id field-id path]]
-   (let [full-path (flatten [form-id path field-id])]
-     (get-in db full-path))))
+ (fn [db [_ form-id field-id]]
+   (get-in db [form-id field-id])))
 
 
 ;;
@@ -32,20 +30,17 @@
   [{:keys [label
            form-id
            field-id
-           path
-           on-change]
-    :or {path []}}]
+           on-change]}]
   ^{:key field-id}
   [:label (locale label)
    [:input {:class "form-control"
             :id field-id
-            :value @(rf/subscribe [:get-input-value form-id field-id path])
+            :value @(rf/subscribe [:get-input-value form-id field-id])
             :on-change (if on-change
                          on-change
                          (fn [event] (rf/dispatch [:set-input-value
                                                    form-id
                                                    field-id
-                                                   path
                                                    (h/input-value-extractor event)])))}]])
 
 (defn select-field
@@ -53,20 +48,17 @@
            form-id
            field-id
            options
-           path
-           on-change]
-    :or {path []}}]
+           on-change]}]
   ^{:key field-id}
   [:label (locale label)
    [:select {:id field-id
              :class "form-control"
-             :value @(rf/subscribe [:get-input-value form-id field-id path])
+             :value @(rf/subscribe [:get-input-value form-id field-id])
              :on-change (if on-change
                           on-change
                           (fn [event] (rf/dispatch [:set-input-value
                                                     form-id
                                                     field-id
-                                                    path
                                                     (h/input-value-extractor event)])))}
     (for [{:keys [id text params] :or {params {}}} options]
       ^{:key id} [:option (assoc params :value id) (locale (or text id))])]])
@@ -75,21 +67,18 @@
   [{:keys [label
            form-id
            field-id
-           path
-           on-change]
-    :or {path []}}]
+           on-change]}]
   ^{:key field-id}
   [:label (locale label)
    [:input {:id field-id
             :type :date
             :class "form-control"
-            :value @(rf/subscribe [:get-input-value form-id field-id path])
+            :value @(rf/subscribe [:get-input-value form-id field-id])
             :on-change (if on-change
                          on-change
                          (fn [event] (rf/dispatch [:set-input-value
                                                    form-id
                                                    field-id
-                                                   path
                                                    (h/input-value-extractor event)])))}]])
 
 (defn button
