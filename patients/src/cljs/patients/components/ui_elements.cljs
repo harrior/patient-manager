@@ -53,7 +53,8 @@
   [:label (locale label)
    [:select {:id field-id
              :class "form-control"
-             :value @(rf/subscribe [:get-input-value form-id field-id])
+             :value (or @(rf/subscribe [:get-input-value form-id field-id])
+                        :none)
              :on-change (if on-change
                           on-change
                           (fn [event] (rf/dispatch [:set-input-value
