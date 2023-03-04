@@ -92,3 +92,20 @@
 (defn spacer
   []
   [:div {:style {:flex-grow 1}}])
+
+(defn fieldset
+  [{:keys [title]} & children]
+  [:fieldset {:style {:display :flex
+                      :gap 10}}
+   [:legend (locale title)]
+
+   (for [child children]
+     child)])
+
+(defn fieldset-column
+  [& children]
+  [:div {:style {:display :flex
+                 :flex-direction :column
+                 :width "100%"}}
+   (for [child children]
+     child)])
