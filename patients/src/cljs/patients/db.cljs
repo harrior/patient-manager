@@ -4,4 +4,4 @@
 (rf/reg-event-db
  ::initialize
  (fn [_ _]
-   {}))
+   {:app {:lang :ru}}))
