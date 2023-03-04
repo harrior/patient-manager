@@ -22,6 +22,13 @@
   (let [search-pattern (re-pattern search-value)]
     (some #(re-find search-pattern (str %)) (vals item))))
 
+(defn- sort-by-field
+  [field items & [direction]]
+  (let [direction (or direction :asc)]
+    (case direction
+      :desc (sort #(< (field %2) (field %1)) items)
+      (sort #(> (field %2) (field %1)) items))))
+
 ;;
 ;; Events
 ;;
@@ -95,7 +102,7 @@
                                      (match-string-in-item-values? search-value)))
                                filtered-items)
                        filtered-items)]
-     (sort sorted-by found-items))))
+     (sort-by-field sorted-by found-items))))
 
 ;;
 ;; Components
@@ -114,7 +121,7 @@
                                   (rf/dispatch [:set-table-search [id input-value]])))}]]])
 
 (defn table
-  [{:keys [id sub fields sorted-by]}]
+  [{:keys [id sub fields sorted-by on-click-row]}]
   (rf/dispatch [:init-table [id fields sorted-by]])
   (let [items @(rf/subscribe [sub])
         filters @(rf/subscribe [:table-filtered-items id sub])]
@@ -151,7 +158,11 @@
       (for [item filters]
         ^{:key item}
         [:tr
-         {:class "table-row"}
+         (merge
+          {:class "table-row"}
+          (when on-click-row
+            {:on-click #(on-click-row item)}))
+
          (for [field fields]
            ^{:key field}
            [:td {:class "table-cell"} ((:value field) item)])])]]))
