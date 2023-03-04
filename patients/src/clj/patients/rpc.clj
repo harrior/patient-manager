@@ -48,7 +48,7 @@
                     :text)
         gender (:gender patient*)
         birth-date (:birth-date patient*)
-        identifier (:identifier patient*)]
+        identifier (:patients/id patient)]
     {:insurance-number insurance-number
      :fullname fullname
      :address address
@@ -78,18 +78,17 @@
    :patient-identifier - the string of the patient's UUID to retrieve
    Returns patient's map."
   [{:keys [db patient-identifier]}]
-  (when-not (string? patient-identifier)
+  (when-not (uuid? patient-identifier)
     (throw (Exception. ":incorrect-patient-identifier")))
 
-  (let [patient-uuid (parse-uuid patient-identifier)
-
-        patient (-> (sql/get-by-id db :patients patient-uuid)
-                    :patients/patient)]
+  (let [patient (-> (sql/get-by-id db :patients patient-identifier)
+                    :patients/patient
+                    (assoc :identifier patient-identifier))]
     (when (nil? patient)
-      (throw (Exception. ":user-not-found")))
+      (throw (Exception. ":patient-not-found")))
 
     (generate-response {:status :ok
-                        :data {:patients patient}})))
+                        :data {:patient patient}})))
 
 (defn create-patient
   "Creates a new patient.
@@ -104,7 +103,7 @@
               :patient (assoc patient-data :identifier new-patient-uuid)}]
     (sql/insert! db :patients data)
     (generate-response {:status :ok
-                        :data {:patient-identifier (str new-patient-uuid)}})))
+                        :data {:patient-identifier new-patient-uuid}})))
 
 (defn delete-patient
   "Deletes a patient from the database.
@@ -112,10 +111,9 @@
    :patient-identifier - the UUID of the patient to delete
    Returns only :ok status in case of succefull deleting."
   [{:keys [db patient-identifier]}]
-  (when-not (string? patient-identifier)
+  (when-not (uuid? patient-identifier)
     (throw (Exception. ":incorrect-patient-identifier")))
-  (let [patient-uuid (parse-uuid patient-identifier)
-        deleted-count (-> (sql/delete! db :patients {:id patient-uuid})
+  (let [deleted-count (-> (sql/delete! db :patients {:id patient-identifier})
                           :next.jdbc/update-count)]
     (when (= deleted-count 0)
       (throw (Exception. ":user-not-found")))
@@ -127,18 +125,16 @@
    :patient-identifier - the string of the patient's UUID to update
    :patient-data - the map with all patient data to insert into the database"
   [{:keys [db patient-identifier patient-data]}]
-  (when-not (string? patient-identifier)
+  (when-not (uuid? patient-identifier)
     (throw (Exception. ":incorrect-patient-identifier")))
   (when-not (validate/validate-patient patient-data)
     (throw  (Exception. ":not-valid-patient-date")))
-  (let [patient-uuid (parse-uuid patient-identifier)
-
-        patient (-> (sql/get-by-id db :patients patient-uuid)
+  (let [patient (-> (sql/get-by-id db :patients patient-identifier)
                     :patients/patient)]
     (when (nil? patient)
       (throw (Exception. ":user-not-found")))
 
-    (sql/update! db :patients {:patient patient-data} {:id patient-uuid})
+    (sql/update! db :patients {:patient patient-data} {:id patient-identifier})
     (generate-response {:status :ok
                         :data {:patients patient-data}})))
 
