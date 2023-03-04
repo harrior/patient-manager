@@ -1,4 +1,18 @@
-(ns patients.components.locale)
+(ns patients.components.locale
+  (:require [re-frame.core :as rf]))
+
+;;
+;; Subs
+;;
+
+(rf/reg-sub
+ :current-lang
+ (fn [db _]
+   (get-in db [:app :lang])))
+
+;;
+;; Constants
+;;
 
 (def strings
   {:ru {:app/title "База данных пациентов"
@@ -6,7 +20,8 @@
         :app/edit-patient "Редактировать пациента"
         :app/search-placeholder "Поиск"
         :app/create-patient "Создать"
-        :app/save "Сохранить"
+        :app/save-patient "Сохранить"
+        :app/delele-patient "Удалить"
         :app/patient-data "Данные пациента"
         :app/patient-address "Адрес"
         :app/patients-list "Список пациентов"
@@ -30,7 +45,8 @@
         :app/edit-patient "Edit Patient"
         :app/search-placeholder "Search"
         :app/create-patient "Create"
-        :app/save "Save"
+        :app/save-patient "Save"
+        :app/delele-patient "Delete"
         :app/patient-data "Patient data"
         :app/patient-address "Address"
         :app/patients-list "Patients list"
@@ -51,7 +67,9 @@
 
 (defn locale
   ([key]
-   (locale :ru key))
+   (let [lang @(rf/subscribe [:current-lang])]
+     (locale (or lang
+                 :ru) key)))
   ([locale key]
    (or (get-in strings [locale key])
        (name key))))
