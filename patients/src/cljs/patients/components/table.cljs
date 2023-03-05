@@ -75,7 +75,8 @@
 (rf/reg-sub
  :get-table-filter-value
  (fn [db [_ table-id field-id]]
-   (get-in db [table-id :filters field-id])))
+   (or ""
+       (get-in db [table-id :filters field-id]))))
 
 (rf/reg-sub
  :get-table-search-value
@@ -118,8 +119,9 @@
   [{:keys [id buttons]}]
   [:div {:class "table-controls"}
    [:div {:class "table-buttons"}
-    (for [button buttons]
-      button)]
+    (doall
+     (for [button buttons]
+       button))]
    [:div {:class "search-box"}
     [:input {:class "table-column-filter-input form-control"
              :placeholder (locale :app/search-placeholder)
@@ -159,9 +161,10 @@
                                    :id value
                                    :value field-value
                                    :on-change on-change-fn}
+                          [:option {:value ".+" :default true} " "]
                           (map (fn [value]
                                  ^{:key value} [:option {:value (str "^" value "$")} value])
-                               (conj options ""))])
+                               options)])
 
                :date [:input {:class " form-control"
                               :type :date
@@ -170,14 +173,15 @@
                               :on-change on-change-fn}]
                [:div]))]))]]
      [:tbody
-      (for [item filters]
-        ^{:key (random-uuid)}
-        [:tr
-         (merge
-          {:class "table-row"}
-          (when on-click-row
-            {:on-click #(on-click-row item)}))
+      (doall
+       (for [item filters]
+         ^{:key (random-uuid)}
+         [:tr
+          (merge
+           {:class "table-row"}
+           (when on-click-row
+             {:on-click #(on-click-row item)}))
 
-         (for [field fields]
-           ^{:key field}
-           [:td {:class "table-cell"} ((:value field) item)])])]]))
+          (for [field fields]
+            ^{:key field}
+            [:td {:class "table-cell"} ((:value field) item)])]))]]))
