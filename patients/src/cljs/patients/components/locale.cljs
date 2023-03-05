@@ -25,6 +25,11 @@
         :app/patient-data "Данные пациента"
         :app/patient-address "Адрес"
         :app/patients-list "Список пациентов"
+        :app/bad-request "Ошибка сети"
+        :app/success-removed "Запись удалена"
+        :app/success-updated "Запись сохранена"
+        :app/success-created "Запись создана"
+        :app/validation-error "Ошибка валидации: одно или несколько полей заполнены неверно"
 
         :patient/fullname "ФИО"
         :patient/gender "Пол"
@@ -50,6 +55,11 @@
         :app/patient-data "Patient data"
         :app/patient-address "Address"
         :app/patients-list "Patients list"
+        :app/bad-request "Network error"
+        :app/success-removed "Record created"
+        :app/success-updated "Record saved"
+        :app/success-created "Record created"
+        :app/validation-error "Validation error: one or more fields are filled incorrectly."
 
         :patient/fullname "Name"
         :patient/gender "Gender"
