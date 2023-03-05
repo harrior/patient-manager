@@ -3,7 +3,8 @@
    [clojure.string :as s]
    [re-frame.core :as rf]
    [patients.components.locale :refer [locale]]
-   [patients.components.helpers :as h]))
+   [patients.components.helpers :as h]
+   [patients.components.ui-elements :refer [input-field date-field select-field]]))
 
 ;;
 ;; Helpers
@@ -72,6 +73,11 @@
    (get-in db [table-id :fields])))
 
 (rf/reg-sub
+ :get-table-filter-value
+ (fn [db [_ table-id field-id]]
+   (get-in db [table-id :filters field-id])))
+
+(rf/reg-sub
  :get-table-search-value
  (fn [db [_ table-id]]
    (get-in db [table-id :search])))
@@ -117,6 +123,7 @@
    [:div {:class "search-box"}
     [:input {:class "table-column-filter-input form-control"
              :placeholder (locale :app/search-placeholder)
+             :value @(rf/subscribe [:get-table-search-value id])
              :on-change (fn [e] (let [input-value (h/input-value-extractor e)]
                                   (rf/dispatch [:set-table-search [id input-value]])))}]]])
 
@@ -128,32 +135,40 @@
     [:table {:class "table"}
      [:thead
       [:tr {:class "table-header"}
-       (for [field fields]
-         ^{:key field}
-         [:th {:class "table-column"}
-          [:div {:class "table-column-text"} (locale (:title field))]
-          [:div {:class "table-column-filter"}]
-          (let [value (:value field)
-                on-change-fn (fn [event] (let [input-value (h/input-value-extractor event)]
-                                           (rf/dispatch [:set-table-filters [id value input-value]])))]
-            (case (:filter-type field)
-              :input [:input {:class "table-column-filter-input form-control"
+       (doall
+        (for [field fields]
+          ^{:key field}
+          [:th {:class "table-column"}
+           [:div {:class "table-column-text"} (locale (:title field))]
+           [:div {:class "table-column-filter"}]
+           (let [value (:value field)
+                 on-change-fn (fn [event] (let [input-value (h/input-value-extractor event)]
+                                            (rf/dispatch [:set-table-filters [id value input-value]])))
+                 field-value @(rf/subscribe [:get-table-filter-value id value])]
+             (case (:filter-type field)
+               :input [:input {:class "form-control"
+                               :id value
+                               :value field-value
+                               :on-change on-change-fn}]
+
+               :select (let [options (->> items
+                                          (map value)
+                                          set
+                                          sort)]
+                         [:select {:class "form-control"
+                                   :id value
+                                   :value field-value
+                                   :on-change on-change-fn}
+                          (map (fn [value]
+                                 ^{:key value} [:option {:value (str "^" value "$")} value])
+                               (conj options ""))])
+
+               :date [:input {:class " form-control"
+                              :type :date
                               :id value
+                              :value field-value
                               :on-change on-change-fn}]
-              :select (let [options (->> items
-                                         (map value)
-                                         set
-                                         sort)]
-                        [:select {:class "table-column-filter-input form-control"
-                                  :id value
-                                  :on-change on-change-fn}
-                         (map (fn [value] ^{:key value} [:option {:value value} value])
-                              (conj options ""))])
-              :date [:input {:class "table-column-filter-input form-control"
-                             :type :date
-                             :id value
-                             :on-change on-change-fn}]
-              [:div]))])]]
+               [:div]))]))]]
      [:tbody
       (for [item filters]
         ^{:key (random-uuid)}
