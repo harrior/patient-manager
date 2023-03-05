@@ -10,7 +10,9 @@
                                                      date-field
                                                      spacer
                                                      fieldset
-                                                     fieldset-column]]))
+                                                     fieldset-column
+                                                     show-error-popup
+                                                     show-success-popup]]))
 
 ;;
 ;; Helpers
@@ -19,7 +21,7 @@
 (defn- remove-empty-keys [m]
   (into {} (for [[k v] m
                  :when (not (or (nil? v)
-                                 (empty? v)))]
+                                (empty? v)))]
              [k v])))
 
 ;;
@@ -89,28 +91,47 @@
    (merge db
           {:patient-address {}
            :patient-data {}
-           :patient-name {}
-           :errors {}})))
+           :patient-name {}})))
 
-(rf/reg-event-db
- :success-post-result
- (fn [_ params]
-   (println :success-post-result params)))
+(rf/reg-event-fx
+ :show-error-popup
+ (fn [_ [_ message]]
+   (show-error-popup message)
+   {}))
 
-(rf/reg-event-db
- :show-request-error
- (fn [_ params]
-   (println :bad-http-result params)))
+(rf/reg-event-fx
+ :show-success-popup
+ (fn [_ [_ message]]
+   (show-success-popup message)
+   {}))
+
+(rf/reg-event-fx
+ :check-request-result
+ (fn [_ [_ message {:keys [status data]} ]]
+   (println status data)
+   (case status
+     :ok {:dispatch [:show-success-popup message]}
+     :validate-error {:dispatch [:show-error-popup :app/validation-error]})))
+
+
+(rf/reg-event-fx
+ :check-registration-request-result
+ (fn [_ [_ {:keys [status data]}]]
+   (case status
+     :ok {:dispatch-n [[:show-success-popup :app/success-created]
+                       [::nav/set-active-page :patient (:patient-identifier data)]]}
+     :validate-error {:dispatch [:show-error-popup :app/validation-error]})))
 
 (rf/reg-event-fx
  :create-patient
  (fn [{:keys [db]} _]
    (let [prepared-data (prepare-patient-data-to-request db)
          request {:method :create-patient
-                  :params {:patient-data  prepared-data}}]
-     {:dispatch [::rpc/invoke request
-                 [:success-post-result]
-                 [:show-request-error]]})))
+                  :params {:patient-data prepared-data}}]
+     {:dispatch [::rpc/invoke
+                 request
+                 [:check-registration-request-result]
+                 [:show-error-popup :app/bad-request]]})))
 
 (rf/reg-event-fx
  :update-patient
@@ -120,8 +141,8 @@
                  {:method :update-patient
                   :params {:patient-identifier patient-uid
                            :patient-data prepared-data}}
-                 [:success-post-result]
-                 [:show-request-error]]})))
+                 [:check-request-result :app/success-updated]
+                 [:show-error-popup :app/bad-request]]})))
 
 (rf/reg-event-fx
  :delete-patient
@@ -129,8 +150,8 @@
    {:dispatch-n[[::rpc/invoke
                  {:method :delete-patient
                   :params {:patient-identifier patient-uid}}
-                 [:success-post-result]
-                 [:show-request-error]]
+                 [:check-request-result :app/success-removed]
+                 [:show-error-popup :app/bad-request]]
                 [::nav/set-active-page :patients]]}))
 
 (rf/reg-event-db
@@ -149,7 +170,7 @@
                {:method :get-patient
                 :params {:patient-identifier patient-uid}}
                [:load-patient-data]
-               [:show-request-error]]}))
+               [:show-error-popup :app/bad-request]]}))
 
 ;;
 ;; Subs
@@ -194,7 +215,7 @@
       (if create-patient?
         [button {:id :create-patient-button
                  :label :app/create-patient
-                 :on-click #(rf/dispatch [:create-patient :patient])}]
+                 :on-click #(rf/dispatch [:create-patient])}]
         [:div
          [button {:id :save-patient-button
                   :label :app/save-patient
