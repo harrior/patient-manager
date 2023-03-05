@@ -4,7 +4,7 @@
             [patients.components.locale :refer [locale]]
             [patients.components.table :refer [table table-header]]
             [patients.components.requests :as rpc]
-            [patients.components.ui-elements :refer [button]]))
+            [patients.components.ui-elements :refer [button show-error-popup]]))
 
 ;;
 ;; Subs
@@ -29,18 +29,11 @@
                :patients
                reverse))))
 
-(rf/reg-event-db
- :create-patient
- (fn [db]
-   (-> db
-       (assoc-in [:app :current-page] :patient-single)
-       (assoc-in [:app :patient-uid] nil))))
-
-;; NOTE: add error show
-(rf/reg-event-db
+(rf/reg-event-fx
  :bad-http-result
  (fn [_ _]
-   (println "Something wrong!")))
+   (show-error-popup :app/bad-request)
+   {}))
 
 (rf/reg-event-fx
  :request-patients-list
