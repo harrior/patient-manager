@@ -2,7 +2,10 @@
   "This module contains functions for validating patient data."
   (:require [clojure.spec.alpha :as s]))
 
+;;
 ;; Common specs
+;;
+
 (s/def ::ne-string (s/and string?
                           not-empty))
 
@@ -23,7 +26,10 @@
 (s/def ::period (s/keys :opt-un [:period/start
                                  :period/end]))
 
+;;
 ;; Specs for patient name
+;;
+
 (s/def :name/use #{"usual" "official" "temp" "nickname" "anonymous" "old" "maiden"})
 (s/def :name/text ::ne-string)
 (s/def :name/family ::ne-string)
@@ -40,8 +46,9 @@
                        :opt-un [:name/suffix
                                 :name/prefix
                                 :name/period])))
-
+;;
 ;; Specs for address
+;;
 
 (s/def :address/use #{"home" "work" "temp" "old" "billing"})
 (s/def :address/type #{"postal" "physical" "both"})
@@ -65,7 +72,10 @@
                                    :address/district
                                    :address/period])))
 
+;;
 ;; Specs for patient
+;;
+
 (s/def :patient/address ::address)
 (s/def :patient/name ::name)
 (s/def :patient/identifier ::uuid-string)
@@ -82,130 +92,31 @@
                    :patient/address]
           :opt-un [:patient/identifier]))
 
-;; TODO: Add return path to unvalid params
-(defn validate-patient
-  "Validates a patient record."
+;;
+;; Validation functions
+;;
+
+(defn generate-error-path-for-explain-data
+  "Generates error path for explain-data."
+  [explain-data]
+  (let [{:keys [in path pred]} explain-data
+        is-missed-key? (or (empty? in)
+                           (not= (last in) (last path)))]
+    (if is-missed-key?
+      (->> pred
+           last
+           last
+           (conj in))
+      in)))
+
+(defn get-patient-validation-error-paths
+  "Retrieves validation error paths for a patient record."
+  [patient]
+  (->> (s/explain-data ::patient patient)
+       :clojure.spec.alpha/problems
+       (map generate-error-path-for-explain-data)))
+
+(defn patient-is-valid?
+  "Checks whether a patient record is valid."
   [patient]
   (s/valid? ::patient patient))
-
-
-(comment
-  (def patient {:name [{:use "usual"
-                        :text "Иванов Иван Иванович"
-                        :family "Иванов"
-                        :given ["Иван" "Иванович"]
-                        :prefix ["Mr."]
-                        :period {:end "2025-01-01"}}]
-                :insurance-number "1234567890123456"
-                :gender "male"
-                :birth-date "1989-07-06"
-                :address [{:use "home"
-                           :type "both"
-                           :text "Россия, Московская область, Москва, ул. Ленина, д. 25, кв. 43"
-                           :line "ул. Ленина, д. 25, кв. 43"
-                           :city "Москва"
-                           :district "Московская область"
-                           :country "Россия"
-                           :period {:start "2005-01-01"}}
-                          {:use "home"
-                           :type "both"
-                           :text "Россия, Московская область, Москва, ул. Ленина, д. 25, кв. 43"
-                           :line "ул. Ленина, д. 25, кв. 43"
-                           :city "Москва"
-                           :district "Московская область"
-                           :country "Россия"
-                           :period {:start "2005-01-01"}}]})
-
-
-  (s/valid? ::patient
-            patient)
-
-  (->> (s/explain-data ::patient patient))
-
-
-  #:clojure.spec.alpha{:problems
-                       ({:path [:insurance-number],
-                         :pred (clojure.core/fn [%] (clojure.core/re-matches #"\d{16}" %)),
-                         :val "123456789012a3456",
-                         :via [:patients.validate/patient :patient/insurance-number],
-                         :in [:insurance-number]}
-                        {:path [:address],
-                         :pred (clojure.core/fn [%] (clojure.core/contains? % :country)),
-                         :val
-                         {:use "home",
-                          :type "both",
-                          :text "Россия, Московская область, Москва, ул. Ленина, д. 25, кв. 43",
-                          :line "ул. Ленина, д. 25, кв. 43",
-                          :city "Москва",
-                          :district "Московская область",
-                          :country1 "Россия",
-                          :period {:start "2005-01-011"}},
-                         :via [:patients.validate/patient :patients.validate/address],
-                         :in [:address 0]}
-                        {:path [:address :period :start],
-                         :pred (clojure.core/fn [%] (clojure.core/re-matches #"\d{4}-\d{2}-\d{2}" %)),
-                         :val "2005-01-011",
-                         :via
-                         [:patients.validate/patient
-                          :patients.validate/address
-                          :patients.validate/period
-                          :patients.validate/date],
-                         :in [:address 0 :period :start]}),
-                       :spec :patients.validate/patient,
-                       :value
-                       {:name
-                        [{:use "usual",
-                          :text "Иванов Иван Иванович",
-                          :family "Иванов",
-                          :given ["Иван" "Иванович"],
-                          :prefix ["Mr."],
-                          :period {:end "2025-01-01"}}],
-                        :insurance-number "123456789012a3456",
-                        :gender "male",
-                        :birth-date "1989-07-06",
-                        :address
-                        [{:use "home",
-                          :type "both",
-                          :text "Россия, Московская область, Москва, ул. Ленина, д. 25, кв. 43",
-                          :line "ул. Ленина, д. 25, кв. 43",
-                          :city "Москва",
-                          :district "Московская область",
-                          :country1 "Россия",
-                          :period {:start "2005-01-011"}}]}}
-
-  (s/explain-data ::patient
-            {:name [{:use "usual"
-                     :text "Иванов Иван Иванович"
-                     :family "Петров"
-                     :given ["Иван" "Иванович"]
-                     :prefix ["mr"]}]
-             :insurance-number "1234567890123456"
-             :gender "male"
-             :birth-date "1989-07-06"
-             :address [{:use "home"
-                        :city "г. Москва"
-                        :type "physical"
-                        :state "Московская область"
-                        :line "ул. Ленина, д. 12"
-                        :postalCode "123456"
-                        :period {:start "1989-07-06"}
-                        :country "RU"
-                        :district nil
-                        :text "123456, Московская область, г. Москва, ул. Ленина, д. 12"}]})
-
-  (s/valid? ::name [{:use "usual"
-                     :text "Иванов Иван Иванович"
-                     :family "Иванов"
-                     :given ["Иван" "Иванович"]
-                     :prefix ["Mr."]
-                     :period {:end "2025-01-01"}}])
-
-  (s/valid? ::uuid-string "")
-
-  (s/valid? ::date "1989-07-06")
-  (s/valid? ::date "1989-07-01")
-  (s/valid? ::date "1989-14-01")
-
-  (s/valid? ::period {:end "1989-01-11"})
-  (s/valid? ::period {:start "1989-01-11"})
-  )

@@ -38,6 +38,10 @@
         {:keys [postal-code state city line district]} patient-address
         {:keys [gender insurance-number birth-date]} patient-data
 
+        patronymic (if (empty? firstname)
+                     nil
+                     patronymic)
+
         name-text (s/join " " (remove nil? [family firstname patronymic]))
         address-text (s/join ", " (remove nil? [postal-code state city line]))
 
@@ -81,12 +85,26 @@
                        :firstname firstname
                        :patronymic patronymic})})
 
+(defn transform-error-path
+  [error-paths]
+  (reduce (fn [acc path]
+            (let [form (first path)
+                  key (last path)]
+              (case form
+                :name (case key
+                        :given (assoc-in acc [:patient-name :firstname] true)
+                        (assoc-in acc [:patient-name key] true))
+                :address (assoc-in acc [:patient-address key] true)
+                (assoc-in acc [:patient-data key] true))))
+          {}
+          error-paths))
+
 ;;
 ;; Events
 ;;
 
 (rf/reg-event-db
- :clear-fields
+ :clear-form
  (fn [db]
    (merge db
           {:patient-address {}
@@ -105,14 +123,26 @@
    (show-success-popup message)
    {}))
 
-(rf/reg-event-fx
- :check-request-result
- (fn [_ [_ message {:keys [status data]} ]]
-   (println status data)
-   (case status
-     :ok {:dispatch [:show-success-popup message]}
-     :validate-error {:dispatch [:show-error-popup :app/validation-error]})))
+(rf/reg-event-db
+ :show-form-validation-errors
+ (fn [db [_ {:keys [error-paths]} transform-fn]]
+   (let [errors-map (transform-fn error-paths)]
+     (assoc db :errors errors-map))))
 
+(rf/reg-event-db
+ :clean-form-errors
+ (fn [db [_]]
+   (assoc db :errors {})))
+
+;; Check CRUD response
+
+(rf/reg-event-fx
+ :check-update-request-result
+ (fn [_ [_ {:keys [status data]} ]]
+   (case status
+     :ok {:dispatch [:show-success-popup :app/success-updated]}
+     :validate-error {:dispatch-n [[:show-form-validation-errors data transform-error-path]
+                                   [:show-error-popup :app/validation-error]]})))
 
 (rf/reg-event-fx
  :check-registration-request-result
@@ -120,39 +150,18 @@
    (case status
      :ok {:dispatch-n [[:show-success-popup :app/success-created]
                        [::nav/set-active-page :patient (:patient-identifier data)]]}
-     :validate-error {:dispatch [:show-error-popup :app/validation-error]})))
+     :validate-error {:dispatch-n [[:show-form-validation-errors data transform-error-path]
+                                   [:show-error-popup :app/validation-error]]})))
 
 (rf/reg-event-fx
- :create-patient
- (fn [{:keys [db]} _]
-   (let [prepared-data (prepare-patient-data-to-request db)
-         request {:method :create-patient
-                  :params {:patient-data prepared-data}}]
-     {:dispatch [::rpc/invoke
-                 request
-                 [:check-registration-request-result]
-                 [:show-error-popup :app/bad-request]]})))
+ :check-delete-request-result
+ (fn [_ [_ {:keys [status]}]]
+   (case status
+     :ok {:dispatch-n [[:show-success-popup :app/success-removed]
+                       [::nav/set-active-page :patients]]}
+     {:dispatch [:show-error-popup :app/bad-request]})))
 
-(rf/reg-event-fx
- :update-patient
- (fn [{:keys [db]} [_ patient-uid]]
-   (let [prepared-data (prepare-patient-data-to-request db)]
-     {:dispatch [::rpc/invoke
-                 {:method :update-patient
-                  :params {:patient-identifier patient-uid
-                           :patient-data prepared-data}}
-                 [:check-request-result :app/success-updated]
-                 [:show-error-popup :app/bad-request]]})))
-
-(rf/reg-event-fx
- :delete-patient
- (fn [_ [_ patient-uid]]
-   {:dispatch-n[[::rpc/invoke
-                 {:method :delete-patient
-                  :params {:patient-identifier patient-uid}}
-                 [:check-request-result :app/success-removed]
-                 [:show-error-popup :app/bad-request]]
-                [::nav/set-active-page :patients]]}))
+;; CRUD
 
 (rf/reg-event-db
  :load-patient-data
@@ -171,6 +180,40 @@
                 :params {:patient-identifier patient-uid}}
                [:load-patient-data]
                [:show-error-popup :app/bad-request]]}))
+
+(rf/reg-event-fx
+ :create-patient
+ (fn [{:keys [db]} _]
+   (let [prepared-data (prepare-patient-data-to-request db)
+         request {:method :create-patient
+                  :params {:patient-data prepared-data}}]
+     {:dispatch-n [[:clean-form-errors]
+                   [::rpc/invoke
+                    request
+                    [:check-registration-request-result]
+                    [:show-error-popup :app/bad-request]]]})))
+
+(rf/reg-event-fx
+ :update-patient
+ (fn [{:keys [db]} [_ patient-uid]]
+   (let [prepared-data (prepare-patient-data-to-request db)]
+     {:dispatch-n [[:clean-form-errors]
+                   [::rpc/invoke
+                    {:method :update-patient
+                     :params {:patient-identifier patient-uid
+                              :patient-data prepared-data}}
+                    [:check-update-request-result]
+                    [:show-error-popup :app/bad-request]]]})))
+
+(rf/reg-event-fx
+ :delete-patient
+ (fn [_ [_ patient-uid]]
+   {:dispatch-n [[:clean-form-errors]
+                 [::rpc/invoke
+                  {:method :delete-patient
+                   :params {:patient-identifier patient-uid}}
+                  [:check-delete-request-result]
+                  [:show-error-popup :app/bad-request]]]}))
 
 ;;
 ;; Subs
@@ -195,8 +238,9 @@
 (defn init
   []
   (let [patient-uid @(rf/subscribe [:get-patient-uid])]
+    (rf/dispatch [:clean-form-errors])
     (if (nil? patient-uid)
-      (rf/dispatch [:clear-fields])
+      (rf/dispatch [:clear-form])
       (rf/dispatch [:get-patient patient-uid]))))
 
 (defn page-header
