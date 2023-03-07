@@ -97,3 +97,21 @@ body {
   padding: 10px 0;
   align-items: baseline;
 }
+
+@keyframes slow-show {
+  0% {opacity: 0;}
+  100% {opacity: 0.8;}
+}
+
+@keyframes slow-hide {
+  0% {opacity: 0.8;}
+  100% {opacity: 0;}
+}
+
+@keyframes show-and-hide {
+  0% {opacity: 0;}
+  50% {opacity: 0.8;}
+  100% {opacity: 0;}
+}
+
+.errors {border: 1px solid red}
