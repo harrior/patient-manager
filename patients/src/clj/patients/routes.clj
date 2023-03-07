@@ -9,12 +9,11 @@
 (defroutes handler
   "Defines the routes and request handlers"
   (GET "/" [] (redirect "/index.html"))
-  (POST "/rpc" [method params] (rpc/rpc method params))
+  (POST "/rpc" [method params] (rpc/rpc-handler method params))
   (resources "/")
   (not-found "Page not found"))
 
-;; TODO: Add wrapper for errors
 (def app
-  "Defines the top-level middleware stack"
+  "Defines the top-level middleware stack."
   (-> handler
       edn/wrap-edn-params))
