@@ -8,7 +8,8 @@
 (rf/reg-sub
  :current-lang
  (fn [db _]
-   (get-in db [:app :lang])))
+   (or (get-in db [:app :lang])
+       :ru)))
 
 ;;
 ;; Constants
@@ -78,8 +79,7 @@
 (defn locale
   ([key]
    (let [lang @(rf/subscribe [:current-lang])]
-     (locale (or lang
-                 :ru) key)))
+     (locale lang key)))
   ([locale key]
    (or (get-in strings [locale key])
        (name key))))

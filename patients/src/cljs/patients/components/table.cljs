@@ -75,8 +75,8 @@
 (rf/reg-sub
  :get-table-filter-value
  (fn [db [_ table-id field-id]]
-   (or ""
-       (get-in db [table-id :filters field-id]))))
+   (or (get-in db [table-id :filters field-id])
+       "")))
 
 (rf/reg-sub
  :get-table-search-value
