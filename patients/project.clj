@@ -38,6 +38,8 @@
 
   :source-paths ["src/clj" "src/cljs"]
 
+  :test-paths ["test/clj" "test/cljs"]
+
   :resource-paths ["resources"]
 
   :main patients.core/-main
