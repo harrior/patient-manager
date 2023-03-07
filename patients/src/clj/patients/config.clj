@@ -24,7 +24,6 @@
    :user "postgres"
    :password "postgres"})
 
-
 (def
   ^{:doc "Configuraton for Migratus."}
   migratus-config
@@ -36,5 +35,5 @@
   ^{:doc "Configuraton for Migratus (test)."}
   migratus-config-test
   {:store :database
-   :migration-dir "migrations"
+   :migration-dir "migrationstest"
    :db db-spec-test})
