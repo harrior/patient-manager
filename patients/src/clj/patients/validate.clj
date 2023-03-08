@@ -9,11 +9,6 @@
 (s/def ::ne-string (s/and string?
                           not-empty))
 
-(s/def ::uuid-string (s/and ::ne-string
-                            #(-> %
-                                 parse-uuid
-                                 boolean)))
-
 (s/def ::date (s/and #(re-matches #"\d{4}-\d{2}-\d{2}" %)
                      #(let [data-pattern (java.text.SimpleDateFormat. "yyyy-MM-dd")
                             parsed-date (.parse data-pattern %)]
@@ -78,7 +73,7 @@
 
 (s/def :patient/address ::address)
 (s/def :patient/name ::name)
-(s/def :patient/identifier ::uuid-string)
+(s/def :patient/identifier uuid?)
 (s/def :patient/gender #{"male" "female" "other" "unknown"})
 (s/def :patient/birth-date ::date)
 (s/def :patient/insurance-number (s/and ::ne-string
