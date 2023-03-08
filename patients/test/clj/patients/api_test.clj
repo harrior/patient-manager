@@ -194,7 +194,7 @@
 (deftest test-delete-patient-throw-exception-on-incorrect-patient-uid
   (let [db mock-db-conn]
     (is (thrown? Exception (api/delete-patient {:db db
-                                                :patient-identifier "asdasdasd"})))
+                                                :patient-identifier "just-string"})))
     (is (thrown? Exception (api/delete-patient {:db db
                                                 :patient-identifier 12312313})))
     (is (thrown? Exception (api/delete-patient {:db db
@@ -213,7 +213,7 @@
   (let [db mock-db-conn]
 
     (is (thrown? Exception (api/update-patient {:db db
-                                                :patient-identifier "asdasdasd"})))
+                                                :patient-identifier "just-string"})))
     (is (thrown? Exception (api/update-patient {:db db
                                                 :patient-identifier 12312313})))
     (is (thrown? Exception (api/update-patient {:db db
