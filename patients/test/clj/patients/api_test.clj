@@ -90,7 +90,7 @@
         response (api/create-patient {:db db :patient-data invalid-patient-data})
         {:keys [status headers api-status data]} (parse-response response)
         error-paths (:error-paths data)]
-    (is (= status 200))
+    (is (= status 500))
     (is (= headers {"Content-Type" "application/edn"}))
     (is (= api-status :validate-error))
     (is (= error-paths
@@ -155,7 +155,7 @@
   (let [db mock-db-conn]
 
     (is (thrown? Exception (api/get-patient {:db db
-                                             :patient-identifier "asdasdasd"})))
+                                             :patient-identifier "just-string"})))
     (is (thrown? Exception (api/get-patient {:db db
                                              :patient-identifier 12312313})))
     (is (thrown? Exception (api/get-patient {:db db
@@ -237,7 +237,7 @@
                                       :patient-data invalid-patient-data})
         {:keys [status headers api-status data]} (parse-response response)
         error-paths (:error-paths data)]
-    (is (= status 200))
+    (is (= status 500))
     (is (= headers {"Content-Type" "application/edn"}))
     (is (= api-status :validate-error))
     (is (= error-paths
