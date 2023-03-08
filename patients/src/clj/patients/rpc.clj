@@ -7,6 +7,15 @@
 
 ;; RPC Router
 
+(defn handle-rpc-errors
+  "Helper function for handling errors in the `rpc-handler` function.
+   Returns a map with an error message."
+  [method params e]
+  (log/debug (format "Wrong rpc request. Method %s. Params %s Error: %s"
+                     method params (.getMessage e)))
+  (responses/generate-response {:status :error
+                                :data {:text (.getMessage e)}}))
+
 (defn rpc-handler
   "Executes an RPC method specified by the `method` keyword with the given parameters `params`.
    Add additional keys (as a database connection).
@@ -34,7 +43,4 @@
         :delete-patient (api/delete-patient ext-params)
         :update-patient (api/update-patient ext-params)
         (throw (Exception. (str "Method " method " not implemented.")))))
-    (catch Exception e (do (log/debug (format "Wrong rpc request. Method %s. Params %s Error: %s"
-                                              method params (.getMessage e)))
-                           (responses/generate-response {:status :error
-                                                         :data {:text (.getMessage e)}})))))
+    (catch Exception e (handle-rpc-errors method params e))))
