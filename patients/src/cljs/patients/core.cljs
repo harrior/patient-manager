@@ -3,7 +3,7 @@
             [re-frame.core :as rf]
             [patients.db :as db]
             [patients.router :refer [router]]))
-(enable-console-print!)
 
+;; Entry point
 (rf/dispatch-sync [::db/initialize])
 (rdom/render [router] (js/document.getElementById "app"))

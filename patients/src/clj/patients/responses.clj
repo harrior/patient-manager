@@ -20,7 +20,7 @@
   (let [status-code (case status
                       :ok 200
                       :error 500
-                      :validate-error 500
+                      :validate-error 400
                       (throw (Exception. (str "Invalid status value: " status))))]
     {:status status-code
      :headers {"Content-Type" "application/edn"}
