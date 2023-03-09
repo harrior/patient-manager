@@ -6,26 +6,6 @@
 
 (def RPC-ENDPOINT "http://localhost:8000/rpc")
 
-;;
-;; Events
-;;
-
-(rf/reg-event-fx
- ::show-error-popup
- (fn [_ [_ message]]
-   (ui/show-error-popup message)
-   {}))
-
-(rf/reg-event-fx
- ::show-success-popup
- (fn [_ [_ message]]
-   (ui/show-success-popup message)
-   {}))
-
-;;
-;;
-;;
-
 (rf/reg-event-fx
  ::invoke
  (fn [_ [_ request on-success on-failure]]

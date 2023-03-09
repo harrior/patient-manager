@@ -2,7 +2,7 @@
   (:require [re-frame.core :as rf]
             [patients.nav :as nav]
             [patients.components.locale :refer [locale]]
-            [patients.components.table :as table]
+            [patients.components.table.core :as table]
             [patients.components.requests :as rpc]
             [patients.components.ui-elements :as ui]))
 
