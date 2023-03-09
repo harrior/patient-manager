@@ -3,8 +3,7 @@
    [clojure.string :as s]
    [re-frame.core :as rf]
    [patients.components.locale :refer [locale]]
-   [patients.components.helpers :as h]
-   [patients.components.ui-elements :refer [input-field date-field select-field]]))
+   [patients.components.helpers :as h]))
 
 ;;
 ;; Helpers

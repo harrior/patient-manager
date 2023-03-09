@@ -29,7 +29,7 @@
    (not (nil? (get-in db [:errors form-id field-id])))))
 
 ;;
-;; Components
+;; Form components
 ;;
 
 (defn input-field
@@ -99,6 +99,9 @@
             :on-click on-click}
    (locale label)])
 
+;;
+;; Visual components
+
 (defn spacer
   []
   [:div {:style {:flex-grow 1}}])
@@ -120,6 +123,10 @@
    (doall
     (for [child children]
       child))])
+
+(defn footer
+  []
+  [:footer {:class "footer"}])
 
 ;;
 ;; Popup
