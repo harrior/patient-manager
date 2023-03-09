@@ -16,6 +16,7 @@
                  [ring "1.9.6"]
                  [compojure "1.7.0"]
                  [fogus/ring-edn "0.3.0"]
+                 [ring/ring-mock "0.4.0"]
 
                  ;; ----- ClojureScript --------
                  [reagent "1.1.1"]

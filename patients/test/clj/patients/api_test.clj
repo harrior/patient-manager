@@ -4,7 +4,6 @@
             [next.jdbc.sql :as sql]
             [migratus.core :as migratus]
             [patients.api :as api]
-            [patients.db :as db]
             [patients.config :as config]
             [patients.responses :as responses]
             [patients.validate :as validate]))
@@ -70,6 +69,15 @@
      :api-status api-status
      :data data
      :patient-identifier patient-identifier}))
+
+;; status
+
+(deftest test-status
+  (is (= (-> (api/status)
+             (update :body read-string))
+         {:status 200,
+          :headers {"Content-Type" "application/edn"},
+          :body {:status :ok, :data {:message "Backend is up and running"}}})))
 
 ;; create-patient
 

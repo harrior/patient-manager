@@ -37,6 +37,7 @@
     (let [ext-params (merge params
                             {:db patients.db/db-conn})]
       (case method
+        :status (api/status)
         :list-patients (api/list-patients ext-params)
         :get-patient (api/get-patient ext-params)
         :create-patient (api/create-patient ext-params)

@@ -33,6 +33,16 @@
                                   :data {:error-paths error-paths}})))
 
 ;;
+;; Status
+;;
+
+(defn status
+  "Returns a response indicating that the backend is up and running."
+  []
+  (responses/generate-response {:status :ok
+                                :data {:message "Backend is up and running"}}))
+
+;;
 ;; CRUD
 ;;
 
