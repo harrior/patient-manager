@@ -1,20 +1,18 @@
 {:lein true
  :nrepl {:port 7979}
- 
- :dependencies
- [[reagent "1.1.1"]]
 
- :source-paths
- ["src"]
+ :build-defaults
+ {:output-dir "resources/public/js"
+  :asset-path "/js"
+  :modules {:main {:entries [patients.core]}}
+  :devtools {:use-document-protocol true}
+  :compiler-options {:infer-externs false
+                     :closure-defines {re-frame.trace.trace-enabled? true}}}
 
  :builds
- {:app {:target :browser
-        :output-dir "resources/public/js"
-        :asset-path "/js"
-        :modules {:main {:entries [patients.core]}}}
-  :re-frisk
+ {:app
+  {:target :browser}
+
+  :re-frisk-embedded
   {:target :browser
-   :output-dir "resources/public/js"
-   :asset-path "/js"
-   :modules {:main {:entries [patients.core]}}
    :devtools {:preloads [re-frisk.preload]}}}}

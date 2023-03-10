@@ -1,4 +1,4 @@
-(defproject patients "0.1.0-SNAPSHOT"
+(defproject patients "0.1.0"
   :description "Health Samurai Test Task by Sizov Sergey"
 
   :dependencies [;; Common libs
@@ -23,6 +23,10 @@
                  [re-frame "1.3.0"]
                  [thheller/shadow-cljs "2.20.20"]
 
+                 ;; Styles
+                 [stylefy "3.2.0"]
+                 [stylefy/reagent "3.0.0"]
+
                  ;; HTTP-client
                  [day8.re-frame/http-fx "0.2.4"]
 
@@ -45,12 +49,20 @@
 
   :main patients.core/-main
 
+  :manifest {"Main-Class" "patients.core"}
+
   :target-path "target/%s"
 
   :profiles {:shadow-cljs
              {:dependencies [[shadow-cljs/devtools "2.20.20"]]
               :plugins [[lein-shadow "0.4.1"]]
               :source-paths ["src/cjls"]
+              :test-paths ["test/cljs"]
               :prep-tasks ["compile"]
               :builds {}
-              :shadow-cljs {:config-files ["shadow-cljs.edn"]}}})
+              :shadow-cljs {:config-files ["shadow-cljs.edn"]}}
+
+             :uberjar
+             {:aot :all
+              :prep-tasks ["compile"
+                           ["run" "-m" "shadow.cljs.devtools.cli" "release" "app" "--source-maps"]]}})
