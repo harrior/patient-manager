@@ -1,8 +1,7 @@
 (ns patients.components.requests
   (:require [ajax.edn :as edn]
             [re-frame.core :as rf]
-            [day8.re-frame.http-fx]
-            [patients.components.ui-elements :as ui]))
+            [day8.re-frame.http-fx]))
 
 (def RPC-ENDPOINT "http://localhost:8000/rpc")
 
