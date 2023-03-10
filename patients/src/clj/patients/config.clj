@@ -9,20 +9,28 @@
   db-spec
   "A map containing the database connection details"
   {:dbtype "postgresql"
-   :dbname "medicine"
-   :host "localhost"
-   :user "postgres"
-   :password "postgres"})
+   :dbname (or (System/getenv "POSTGRES_DB")
+               "medicine")
+   :host (or (System/getenv "POSTGRES_HOST")
+             "localhost")
+   :user (or (System/getenv "POSTGRES_USER")
+             "postgres")
+   :password (or (System/getenv "POSTGRES_PASSWORD")
+                 "postgres")})
 
 (def
   ^{:doc "Configuration for Database (test)."}
   db-spec-test
   "A map containing the database connection details"
   {:dbtype "postgresql"
-   :dbname "medicine_test"
-   :host "localhost"
-   :user "postgres"
-   :password "postgres"})
+   :dbname (or (System/getenv "POSTGRES_TEST_DB")
+             "medicine_test")
+   :host (or (System/getenv "POSTGRES_HOST")
+             "localhost")
+   :user (or (System/getenv "POSTGRES_USER")
+             "postgres")
+   :password (or (System/getenv "POSTGRES_PASSWORD")
+                 "postgres")})
 
 (def
   ^{:doc "Configuraton for Migratus."}
