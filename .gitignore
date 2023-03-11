@@ -28,5 +28,4 @@ resources/public/js/
 .DS_Store
 package-lock.json
 .env
-.shadow-cljs
 output-window/output.calva-repl
