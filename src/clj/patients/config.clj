@@ -24,7 +24,7 @@
   "A map containing the database connection details"
   {:dbtype "postgresql"
    :dbname (or (System/getenv "POSTGRES_TEST_DB")
-             "medicine_test")
+               "medicine_test")
    :host (or (System/getenv "POSTGRES_HOST")
              "localhost")
    :user (or (System/getenv "POSTGRES_USER")
