@@ -9,10 +9,8 @@ executors:
       IMAGE_NAME: harrior/patient-app
     docker:
       - image: circleci/buildpack-deps:stretch
+
 jobs:
-  prepare-cljs:
-
-
   build:
     working_directory: ~/patients
     docker:
@@ -28,6 +26,7 @@ jobs:
           root: ~/patients
           paths:
             - target
+
   build-docker:
     executor: docker-publisher
     steps:
@@ -48,6 +47,7 @@ jobs:
           root: ~/cci-patients
           paths:
             - ./image.tar
+
   publish-docker:
     executor: docker-publisher
     steps:
@@ -65,35 +65,23 @@ jobs:
             docker push $IMAGE_NAME:${CIRCLE_TAG}
 
   deploy:
-    executor: kubernetes-deploy
+    docker:
+      # replace with your preferred image
+      - image: cimg/base:stable
     steps:
-      - checkout
-      - setup-kubernetes-namespace:
-          name: setup kubernetes namespace
-          namespace: $KUBE_NAMESPACE
-      - setup-kubeconfig:
-          name: setup kubeconfig
-          kubeconfig: $HOME/.kube/config
-      - run:
-          name: deploy app
-          command: kubectl apply -f deployment.yaml
-      - run:
-          name: verify deploy
-          command: kubectl rollout status deployment/myapp-deployment
-      - store-artifacts:
-          path: kubernetes.yml
-          destination: kubernetes-config
-          
+      - kubernetes/create-or-update-resource:
+          resource-file-path: deployment.yml 
+
 workflows:
-    build-and-deploy:
-      jobs:
-        - build
-        - build-docker:
-            requires:
-              - build
-        - publish-docker:
-            requires:
-              - build-docker
-        - deploy:
-            requires:
-              - publish-docker
+  build-and-deploy:
+    jobs:
+      - build
+      - build-docker:
+          requires:
+            - build
+      - publish-docker:
+          requires:
+            - build-docker
+      - deploy:
+          requires:
+            - publish-docker
