@@ -22,10 +22,6 @@ jobs:
       JVM_OPTS: -Xmx3200m # limit the maximum heap size to prevent out of memory errors
     steps:
       - checkout
-      - node/install
-      - run: npm install --save-dev shadow-cljs
-      - run: npm install shadow-cljs
-      - run: npm install deps  
       - run: lein deps
       - run: lein uberjar
       - persist_to_workspace:
