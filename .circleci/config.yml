@@ -1,67 +1,38 @@
 version: 2.1
-orbs:
-  node: circleci/node@5.1.0
 
 executors:
-  docker-publisher:
-    working_directory: ~/patients
-    environment:
-      IMAGE_NAME: harrior/patient-app
+  clojure-node:
+    working_directory: ~/app
     docker:
-      - image: circleci/buildpack-deps:stretch
+      - image: circleci/clojure:lein-2.10.0
+        environment:
+          JVM_OPTS: -Xmx2g
+          LEIN_ROOT: true
+      - image: circleci/node:19.6.0
+
 jobs:
   build:
-    working_directory: ~/patients
-    docker:
-      - image: circleci/clojure:lein-2.8.1
-    environment:
-      LEIN_ROOT: nbd
-      JVM_OPTS: -Xmx3200m # limit the maximum heap size to prevent out of memory errors
+    executor: clojure-node
     steps:
       - checkout
-      # - node/install
-      # - run: nvm install node
-      # - run: npm install --save-dev shadow-cljs
-      - run: npm install shadow-cljs
-      - run: npm install deps  
+      - run: npm install
       - run: lein deps
+      - run: npx shadow-cljs release app
       - run: lein uberjar
       - persist_to_workspace:
-          root: ~/patients
+          root: ~/app
           paths:
             - target
+
   build-docker:
-    executor: docker-publisher
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - setup_remote_docker
-      - run:
-          name: Build latest Docker image
-          command: docker build ./patients -t $IMAGE_NAME:latest
-      - run:
-          name: Build tagged Docker image
-          command: docker build ./patients -t $IMAGE_NAME:${CIRCLE_TAG}
-      - run:
-          name: Archive Docker images
-          command: docker save -o image.tar $IMAGE_NAME
-      - persist_to_workspace:
-          root: ~/cci-patients
-          paths:
-            - ./image.tar
-  publish-docker:
-    executor: docker-publisher
+    executor: clojure-node
     steps:
       - attach_workspace:
-          at: .
+          at: ~/app
       - setup_remote_docker
       - run:
-          name: Load archived Docker image
-          command: docker load -i image.tar
+          name: Build Docker image
+          command: docker build -t myapp:${CIRCLE_SHA1} .
       - run:
-          name: Publish Docker Image to Docker Hub
-          command: |
-            echo "${DOCKERHUB_PASS}" | docker login -u "${DOCKERHUB_USERNAME}" --password-stdin
-            docker push $IMAGE_NAME:latest
-            docker push $IMAGE_NAME:${CIRCLE_TAG}
+          name: Push Docker image to registry
+          command: docker push myapp:${CIRCLE_SHA1}
