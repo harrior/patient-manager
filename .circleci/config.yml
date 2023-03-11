@@ -75,6 +75,9 @@ jobs:
                     sudo apt-get install -y kubectl
       - kubernetes/create-or-update-resource:
           resource-file-path: deployment.yml 
+    environment:
+      KUBE_SERVER: ${KUBE_SERVER}
+      KUBE_NAMESPACE: ${KUBE_NAMESPACE}
 
 workflows:
   build-and-deploy:
