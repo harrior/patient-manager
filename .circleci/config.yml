@@ -65,7 +65,7 @@ jobs:
       - image: cimg/base:stable
     steps:
       - checkout
-      - run: echo "export KUBE_URL=https://127.0.0.1:58592" >> $BASH_ENV && source $BASH_ENV
+      # - run: echo "export KUBE_URL=https://127.0.0.1:58592" >> $BASH_ENV && source $BASH_ENV
       - kubernetes/install
       - kubernetes/install-kubeconfig:
          kubeconfig: KUBE_CONFIG_DATA
