@@ -36,10 +36,10 @@ jobs:
       - setup_remote_docker
       - run:
           name: Build latest Docker image
-          command: docker build ./patients -t $IMAGE_NAME:latest
+          command: docker build . -t $IMAGE_NAME:latest
       - run:
           name: Build tagged Docker image
-          command: docker build ./patients -t $IMAGE_NAME:${CIRCLE_TAG}
+          command: docker build . -t $IMAGE_NAME:${CIRCLE_TAG}
       - run:
           name: Archive Docker images
           command: docker save -o image.tar $IMAGE_NAME
