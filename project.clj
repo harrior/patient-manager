@@ -62,11 +62,11 @@
               :builds {}
               :shadow-cljs {:config-files ["shadow-cljs.edn"]}}
 
-             :uberjar
-             {:aot :all
-              :prep-tasks ["compile"]}
+            ;;  :uberjar
+            ;;  {:aot :all
+            ;;   :prep-tasks ["compile"]}
 
-             :uberjar-cljs
+             :uberjar
              {:aot :all
               :prep-tasks ["compile"
                            ["run" "-m" "shadow.cljs.devtools.cli" "release" "app" "--source-maps"]]}})
