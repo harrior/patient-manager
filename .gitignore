@@ -24,8 +24,6 @@ pom.xml.asc
 .hg/
 .calva
 .lsp/
-.shadow-cljs/
-node_modules/
 resources/public/js/
 .DS_Store
 package-lock.json
