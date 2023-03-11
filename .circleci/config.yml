@@ -1,50 +1,36 @@
 version: 2.1
 
-executors:
-  clojure-node:
-    working_directory: ~/app
-    docker:
-      - image: circleci/clojure:lein-2.10.0
-        environment:
-          JVM_OPTS: -Xmx2g
-          LEIN_ROOT: true
-      - image: circleci/node:16-browsers
-      - image: eclipse-temurin:17-jdk-jammy
-      - image: node:19-6-alpine
-    shell: /bin/bash
-
 jobs:
   build:
-    executor: clojure-node
+    docker:
+      - image: circleci/clojure:lein-2.9.5
+      # - image: circleci/postgres:9.4
+
+    working_directory: ~/repo
+
+    environment:
+      LEIN_ROOT: "true"
+      JVM_OPTS: -Xmx3200m
+
     steps:
       - checkout
-      - run: sudo apt-get install nodejs
-      - run: sudo apt-get install npm
-      - run: node -v
-      - run: npm -v
-      - run: npm install shadow-cljs
-      - run: lein deps
-      - run: npx shadow-cljs release app
-      - run: lein uberjar
-      - persist_to_workspace:
-          root: ~/app
-          paths:
-            - target
 
-  build-docker:
-    executor: clojure-node
-    steps:
-      - attach_workspace:
-          at: ~/app
-      - setup_remote_docker
-      - run:
-          name: Build Docker image
-          command: |
-            docker build -t myapp:${CIRCLE_SHA1} .
-            docker tag myapp:${CIRCLE_SHA1} myapp:latest
-      - run:
-          name: Push Docker image to registry
-          command: |
-            echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
-            docker push myapp:${CIRCLE_SHA1}
-            docker push myapp:latest
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "project.clj" }}
+            - v1-dependencies-
+
+      - run: lein deps
+
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: v1-dependencies-{{ checksum "project.clj" }}
+
+      # - run: lein test
+
+workflows:
+  sample: # This is the name of the workflow, feel free to change it to better match your workflow.
+    # Inside the workflow, you define the jobs you want to run.
+    jobs:
+      - build
