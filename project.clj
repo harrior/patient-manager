@@ -64,5 +64,9 @@
 
              :uberjar
              {:aot :all
+              :prep-tasks ["compile"]}
+
+             :uberjar-cljs
+             {:aot :all
               :prep-tasks ["compile"
                            ["run" "-m" "shadow.cljs.devtools.cli" "release" "app" "--source-maps"]]}})
