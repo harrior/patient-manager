@@ -8,7 +8,8 @@ executors:
         environment:
           JVM_OPTS: -Xmx2g
           LEIN_ROOT: true
-      - image: circleci/node:19.6.0
+      - image: circleci/node:16-browsers
+    shell: /bin/bash
 
 jobs:
   build:
@@ -18,7 +19,6 @@ jobs:
       - run: sudo apt-get install nodejs
       - run: sudo apt-get install npm
       - run: npm install shadow-cljs
-      - run: npm install
       - run: lein deps
       - run: npx shadow-cljs release app
       - run: lein uberjar
@@ -35,7 +35,12 @@ jobs:
       - setup_remote_docker
       - run:
           name: Build Docker image
-          command: docker build -t myapp:${CIRCLE_SHA1} .
+          command: |
+            docker build -t myapp:${CIRCLE_SHA1} .
+            docker tag myapp:${CIRCLE_SHA1} myapp:latest
       - run:
           name: Push Docker image to registry
-          command: docker push myapp:${CIRCLE_SHA1}
+          command: |
+            echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
+            docker push myapp:${CIRCLE_SHA1}
+            docker push myapp:latest
