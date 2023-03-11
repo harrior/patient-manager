@@ -10,9 +10,6 @@ executors:
     docker:
       - image: circleci/buildpack-deps:stretch
 jobs:
-  prepare-cljs:
-
-
   build:
     working_directory: ~/patients
     docker:
@@ -23,6 +20,7 @@ jobs:
     steps:
       - checkout
       - node/install
+      - run: nvm install node
       - run: npm install --save-dev shadow-cljs
       - run: npm install shadow-cljs
       - run: npm install deps  
