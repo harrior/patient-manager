@@ -64,13 +64,13 @@ jobs:
     docker:
       - image: cimg/base:stable
     steps:
+      - checkout
       - kubernetes/install
-      - kubernetes/install-kubeconfig
+      - kubernetes/install-kubeconfig:
+         kubeconfig: KUBE_CONFIG_DATA
       - kubernetes/create-or-update-resource:
           resource-file-path: deployment.yml 
-    environment:
-      KUBE_SERVER: ${KUBE_SERVER}
-      KUBE_NAMESPACE: ${KUBE_NAMESPACE}
+          show-kubectl-command: true
 
 workflows:
   build-and-deploy:
