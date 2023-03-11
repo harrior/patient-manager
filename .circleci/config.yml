@@ -83,3 +83,17 @@ jobs:
       - store-artifacts:
           path: kubernetes.yml
           destination: kubernetes-config
+          
+workflows:
+    build-and-deploy:
+      jobs:
+        - build
+        - build-docker:
+            requires:
+              - build
+        - publish-docker:
+            requires:
+              - build-docker
+        - deploy:
+            requires:
+              - publish-docker
