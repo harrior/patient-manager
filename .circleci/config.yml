@@ -9,6 +9,8 @@ executors:
           JVM_OPTS: -Xmx2g
           LEIN_ROOT: true
       - image: circleci/node:16-browsers
+      - image: eclipse-temurin:17-jdk-jammy
+      - image: node:19-6-alpine
     shell: /bin/bash
 
 jobs:
