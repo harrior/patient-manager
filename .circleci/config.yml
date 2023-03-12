@@ -25,7 +25,7 @@ jobs:
               sudo apt-get install -y nodejs
               sudo npm install -g shadow-cljs
       - run: lein deps
-      - run: lein uberjar
+      - run: lein uberjar-cljs
       - persist_to_workspace:
           root: ~/patients
           paths:
