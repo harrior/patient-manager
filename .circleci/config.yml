@@ -25,7 +25,6 @@ jobs:
       - run: npm install
       - run: apt install leiningen -y
       - run: lein deps
-      - run: lein run -m shadow.cljs.devtools.cli release app --source-maps
       - run: lein uberjar
       - persist_to_workspace:
           root: ~/build
@@ -84,9 +83,9 @@ workflows:
   build-and-deploy:
     jobs:
       - build
-      # - build-docker:
-      #     requires:
-      #       - build
+      - build-docker:
+          requires:
+            - build
       # - publish-docker:
       #     requires:
       #       - build-docker
