@@ -34,7 +34,7 @@ executors:
 
 jobs:
   build:
-    working_directory: ~/
+    working_directory: ~/build
     docker:
       - image: ubuntu
     steps:
