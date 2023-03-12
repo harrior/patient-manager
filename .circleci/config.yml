@@ -20,8 +20,9 @@ jobs:
       JVM_OPTS: -Xmx3200m # limit the maximum heap size to prevent out of memory errors
     steps:
       - checkout
-      - run: | 
-              curl -sL https://deb.nodesource.com/setup_18.x | sudo -E bash
+      - run: |
+              sudo apt install libc6=2.31-0ubuntu9.2 libc-bin=2.31-0ubuntu9.2
+              curl -sL https://deb.nodesource.com/setup_19.x | sudo -E bash
               sudo apt-get install -y nodejs
               sudo npm install -g shadow-cljs
       - run: lein deps
