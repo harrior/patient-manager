@@ -29,3 +29,4 @@ resources/public/js/
 package-lock.json
 .env
 output-window/output.calva-repl
+.shadow-cljs

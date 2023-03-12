@@ -4,9 +4,35 @@
             [next.jdbc.sql :as sql]
             [migratus.core :as migratus]
             [patients.api :as api]
-            [patients.config :as config]
+            [patients.db :as db]
             [patients.responses :as responses]
             [patients.validate :as validate]))
+
+;;
+;; "Configuration for Test Database
+;;
+
+(def
+  ^{:doc "Configuration for Database."}
+  db-spec-test
+  "A map containing the database connection details"
+  {:dbtype "postgresql"
+   :dbname (or (System/getenv "POSTGRES_TEST_DB")
+               "medicine_test")
+   :host (or (System/getenv "POSTGRES_HOST")
+             "localhost")
+   :user (or (System/getenv "POSTGRES_USER")
+             "postgres")
+   :password (or (System/getenv "POSTGRES_PASSWORD")
+                 "postgres")})
+
+(def
+  ^{:doc "Configuraton for Migratus (test)."}
+  migratus-config-test
+  {:store :database
+   :migration-dir "migrationstest"
+   :db db-spec-test})
+
 
 ;;
 ;; Data
@@ -46,14 +72,19 @@
                            :birth-date "1979-01-01"})
 
 (def mock-db-conn
-  (jdbc/get-datasource config/db-spec-test))
+  (jdbc/get-datasource db-spec-test))
 
-(defn fix-db-server [t]
-  (migratus/init config/migratus-config-test)
-  (migratus/migrate config/migratus-config-test)
+(defn fix-db-migrations [t]
+  (migratus/init migratus-config-test)
+  (migratus/migrate migratus-config-test)
   (t))
 
-(use-fixtures :each fix-db-server)
+(defn fix-db-init [t]
+  (db/init-db db-spec-test)
+  (t))
+
+(use-fixtures :once fix-db-init)
+(use-fixtures :each fix-db-migrations)
 
 
 (defn parse-response
