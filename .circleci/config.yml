@@ -39,8 +39,7 @@ jobs:
       - image: ubuntu
     steps:
       - checkout
-      - run: update -y
-      - run: apt upgrade -y
+      - run: apt update -y
       - run: apt install -y curl
       - run: curl -fsSL https://deb.nodesource.com/setup_19.x | bash -
       - run: apt install -y nodejs
