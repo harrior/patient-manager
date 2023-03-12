@@ -4,87 +4,112 @@ orbs:
 
 executors:
   docker-publisher:
-    working_directory: ~/patients
+    working_directory: ~/
     environment:
       IMAGE_NAME: harrior/patient-app
     docker:
       - image: circleci/buildpack-deps:stretch
 
+# FROM ubuntu
+
+# RUN apt update -y
+# RUN apt upgrade -y
+
+# WORKDIR /app
+# COPY . .
+
+# RUN apt install -y curl
+# RUN curl -fsSL https://deb.nodesource.com/setup_19.x | bash -
+# RUN apt install -y nodejs
+# RUN node --version
+# RUN npm install
+
+# RUN apt install leiningen -y
+# RUN lein deps
+# RUN lein run -m shadow.cljs.devtools.cli release app --source-maps
+# RUN lein uberjar
+# EXPOSE 8000
+# CMD java -jar ./target/uberjar/patients-0.1.0-standalone.jar
+
+
 jobs:
   build:
-    working_directory: ~/patients
+    working_directory: ~/
     docker:
-      - image: circleci/clojure:lein-2.8.1
-    environment:
-      LEIN_ROOT: nbd
-      JVM_OPTS: -Xmx3200m # limit the maximum heap size to prevent out of memory errors
+      - image: ubuntu
     steps:
       - checkout
+      - run: apt install -y curl
+      - run: curl -fsSL https://deb.nodesource.com/setup_19.x | bash -
+      - run: apt install -y nodejs
+      - run: npm install
+      - run: apt install leiningen -y
       - run: lein deps
+      - run: lein run -m shadow.cljs.devtools.cli release app --source-maps
       - run: lein uberjar
       - persist_to_workspace:
-          root: ~/patients
+          root: ~/
           paths:
             - target
 
-  build-docker:
-    executor: docker-publisher
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - setup_remote_docker
-      - run:
-          name: Build latest Docker image
-          command: docker build . -t $IMAGE_NAME:latest
-      - run:
-          name: Archive Docker images
-          command: docker save -o image.tar $IMAGE_NAME
-      - persist_to_workspace:
-          root: ~/patients
-          paths:
-            - ./image.tar
+  # build-docker:
+  #   executor: docker-publisher
+  #   steps:
+  #     - checkout
+  #     - attach_workspace:
+  #         at: .
+  #     - setup_remote_docker
+  #     - run:
+  #         name: Build latest Docker image
+  #         command: docker build . -t $IMAGE_NAME:latest
+  #     - run:
+  #         name: Archive Docker images
+  #         command: docker save -o image.tar $IMAGE_NAME
+  #     - persist_to_workspace:
+  #         root: ~/patients
+  #         paths:
+  #           - ./image.tar
 
-  publish-docker:
-    executor: docker-publisher
-    steps:
-      - attach_workspace:
-          at: .
-      - setup_remote_docker
-      - run:
-          name: Load archived Docker image
-          command: docker load -i image.tar
-      - run:
-          name: Publish Docker Image to Docker Hub
-          command: |
-            echo "${DOCKERHUB_PASS}" | docker login -u "${DOCKERHUB_USERNAME}" --password-stdin
-            docker push $IMAGE_NAME:latest
+  # publish-docker:
+  #   executor: docker-publisher
+  #   steps:
+  #     - attach_workspace:
+  #         at: .
+  #     - setup_remote_docker
+  #     - run:
+  #         name: Load archived Docker image
+  #         command: docker load -i image.tar
+  #     - run:
+  #         name: Publish Docker Image to Docker Hub
+  #         command: |
+  #           echo "${DOCKERHUB_PASS}" | docker login -u "${DOCKERHUB_USERNAME}" --password-stdin
+  #           docker push $IMAGE_NAME:latest
 
-  deploy:
-    docker:
-      - image: cimg/base:stable
-    steps:
-      - checkout
-      - run: echo "export KUBE_URL=https://127.0.0.1:58592" >> $BASH_ENV && source $BASH_ENV
-      - run: echo "export KUBECONFIG=~/.kube/config" >> $BASH_ENV && source $BASH_ENV
-      - run: echo "export KUBE_CA_PEM_FILE=~/.kube/ca.crt" >> $BASH_ENV && source $BASH_ENV
-      - kubernetes/install
-      - kubernetes/install-kubeconfig:
-         kubeconfig: KUBE_CONFIG_DATA
-      - kubernetes/create-or-update-resource:
-          resource-file-path: deployment.yml 
-          show-kubectl-command: true
+  # deploy:
+  #   docker:
+  #     - image: cimg/base:stable
+  #   steps:
+  #     - checkout
+  #     - run: echo "export KUBE_URL=https://127.0.0.1:58592" >> $BASH_ENV && source $BASH_ENV
+  #     - run: echo "export KUBECONFIG=~/.kube/config" >> $BASH_ENV && source $BASH_ENV
+  #     - run: echo "export KUBE_CA_PEM_FILE=~/.kube/ca.crt" >> $BASH_ENV && source $BASH_ENV
+  #     - kubernetes/install
+  #     - kubernetes/install-kubeconfig:
+  #        kubeconfig: KUBE_CONFIG_DATA
+  #     - kubernetes/create-or-update-resource:
+  #         resource-file-path: deployment.yml 
+  #         show-kubectl-command: true
 
 workflows:
   build-and-deploy:
     jobs:
       - build
-      - build-docker:
-          requires:
-            - build
-      - publish-docker:
-          requires:
-            - build-docker
-      - deploy:
-          requires:
-            - publish-docker
+      # - build-docker:
+      #     requires:
+      #       - build
+      # - publish-docker:
+      #     requires:
+      #       - build-docker
+      # - deploy:
+      #     requires:
+      #       - publish-docker
