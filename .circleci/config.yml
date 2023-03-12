@@ -20,6 +20,11 @@ jobs:
       JVM_OPTS: -Xmx3200m # limit the maximum heap size to prevent out of memory errors
     steps:
       - checkout
+      - run: | 
+              curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash
+              sudo apt-get install -y nodejs
+              npm install -g shadow-cljs
+              npm install -g npx
       - run: lein deps
       - run: lein uberjar
       - persist_to_workspace:
