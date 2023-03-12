@@ -1,9 +1,9 @@
 (ns patients.pages.patient-grid
   (:require [re-frame.core :as rf]
+            [patients.events :as events]
             [patients.nav :as nav]
             [patients.components.locale :refer [locale]]
             [patients.components.table.core :as table]
-            [patients.components.requests :as rpc]
             [patients.components.ui-elements :as ui]))
 
 ;;
@@ -20,7 +20,7 @@
 ;;
 
 (rf/reg-event-db
- :load-patients-db
+ :store-patients-data
  (fn [db [_ params]]
    (assoc db
           :patients
@@ -32,10 +32,11 @@
 (rf/reg-event-fx
  :request-patients-list
  (fn [_ _]
-   {:dispatch [::rpc/invoke
-               {:method :list-patients}
-               [:load-patients-db]
-               [::ui/show-error-popup :app/bad-request]]}))
+   {:dispatch [::events/invoke
+               {:request
+                {:method :list-patients}
+                :on-success [:store-patients-data]
+                :on-failure [::ui/show-error-popup :app/bad-request]}]}))
 
 ;;
 ;; Patients grid page
@@ -70,7 +71,7 @@
                      (rf/dispatch [::nav/set-active-page :patient (:identifier patient)]))
      :fields [{:title :patient/fullname
                :value :fullname
-               :filter-type :input}
+               :filter-type :text-input}
               {:title :patient/gender
                :value :gender
                :filter-type :select}
@@ -79,10 +80,10 @@
                :filter-type :date}
               {:title :address/text
                :value :address
-               :filter-type :input}
+               :filter-type :text-input}
               {:title :patient/insurance-number
                :value :insurance-number
-               :filter-type :input}]}]])
+               :filter-type :text-input}]}]])
 
 (defn main
   []

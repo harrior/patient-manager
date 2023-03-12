@@ -2,13 +2,13 @@
   (:require [re-frame.core :as rf]))
 
 (rf/reg-sub
- ::get-patient-uid
+ ::patient-uid
  (fn [db _]
    (first (get-in db [:app :page-params]))))
 
 (rf/reg-sub
- ::create-patient?
+ ::new-patient?
  (fn []
-   (rf/subscribe [::get-patient-uid]))
+   (rf/subscribe [::patient-uid]))
  (fn [patient-uid]
    (nil? patient-uid)))

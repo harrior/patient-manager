@@ -17,12 +17,12 @@
 ;;
 
 (rf/reg-sub
- :get-input-value
+ :input-value
  (fn [db [_ form-id field-id]]
    (get-in db [form-id field-id])))
 
 (rf/reg-sub
- :get-field-error
+ :field-error
  (fn [db [_ form-id field-id]]
    (not (nil? (get-in db [:errors form-id field-id])))))
 
@@ -35,12 +35,12 @@
            form-id
            field-id
            on-change]}]
-  (let [field-has-error? @(rf/subscribe [:get-field-error form-id field-id])]
+  (let [field-has-error? @(rf/subscribe [:field-error form-id field-id])]
     ^{:key [form-id field-id]}
     [:label (locale label)
      [:input {:class ["form-control" (when field-has-error? "errors")]
               :id field-id
-              :value @(rf/subscribe [:get-input-value form-id field-id])
+              :value @(rf/subscribe [:input-value form-id field-id])
               :on-change (if on-change
                            on-change
                            (fn [event] (rf/dispatch [:set-input-value
@@ -54,12 +54,12 @@
            field-id
            options
            on-change]}]
-  (let [field-has-error? @(rf/subscribe [:get-field-error form-id field-id])]
+  (let [field-has-error? @(rf/subscribe [:field-error form-id field-id])]
     ^{:key [form-id field-id]}
     [:label (locale label)
      [:select {:id field-id
                :class ["form-control" (when field-has-error? "errors")]
-               :value (or @(rf/subscribe [:get-input-value form-id field-id])
+               :value (or @(rf/subscribe [:input-value form-id field-id])
                           :none)
                :on-change (if on-change
                             on-change
@@ -76,13 +76,13 @@
            form-id
            field-id
            on-change]}]
-  (let [field-has-error? @(rf/subscribe [:get-field-error form-id field-id])]
+  (let [field-has-error? @(rf/subscribe [:field-error form-id field-id])]
     ^{:key [form-id field-id]}
     [:label (locale label)
      [:input {:id field-id
               :type :date
               :class ["form-control" (when field-has-error? "errors")]
-              :value @(rf/subscribe [:get-input-value form-id field-id])
+              :value @(rf/subscribe [:input-value form-id field-id])
               :on-change (if on-change
                            on-change
                            (fn [event] (rf/dispatch [:set-input-value
@@ -104,7 +104,7 @@
   []
   [:div {:style {:flex-grow 1}}])
 
-(defn fieldset
+(defn fieldset-row
   [{:keys [title]} & children]
   [:fieldset {:style {:display :flex
                       :gap 10}}
@@ -115,12 +115,11 @@
 
 (defn fieldset-column
   [& children]
-  [:div {:style {:display :flex
-                 :flex-direction :column
-                 :width "100%"}}
-   (doall
-    (for [child children]
-      child))])
+  (into
+   [:div {:style {:display :flex
+                  :flex-direction :column
+                  :width "100%"}}
+    children]))
 
 (defn footer
   []

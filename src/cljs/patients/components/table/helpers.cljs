@@ -17,5 +17,5 @@
   [field items & [direction]]
   (let [direction (or direction :asc)]
     (case direction
-      :desc (sort #(< (field %2) (field %1)) items)
-      (sort #(> (field %2) (field %1)) items))))
+      :asc (sort #(> (field %2) (field %1)) items)
+      :desc (sort #(< (field %2) (field %1)) items))))

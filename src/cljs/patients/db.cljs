@@ -4,4 +4,5 @@
 (rf/reg-event-db
  ::initialize
  (fn [_ _]
-   {:app {:lang :ru}}))
+   {:app {:lang :ru
+          :active-page :patients}}))

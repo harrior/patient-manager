@@ -4,28 +4,28 @@
             [patients.components.table.helpers :as table-helpers]))
 
 (rf/reg-sub
- ::get-table-filters
+ ::table-filters
  (fn [db [_ table-id]]
    (get-in db [table-id :filters])))
 
 (rf/reg-sub
- ::get-table-fields
+ ::table-fields
  (fn [db [_ table-id]]
    (get-in db [table-id :fields])))
 
 (rf/reg-sub
- ::get-table-filter-value
+ ::table-filter-value
  (fn [db [_ table-id field-id]]
    (or (get-in db [table-id :filters field-id])
        "")))
 
 (rf/reg-sub
- ::get-table-search-value
+ ::table-search-value
  (fn [db [_ table-id]]
    (get-in db [table-id :search])))
 
 (rf/reg-sub
- ::get-table-sorted-by
+ ::table-sorted-by
  (fn [db [_ table-id]]
    (get-in db [table-id :sorted-by])))
 
@@ -34,10 +34,10 @@
  ::table-filtered-items
  (fn [[_ table-id sub]]
    [(rf/subscribe [sub])
-    (rf/subscribe [::get-table-filters table-id])
-    (rf/subscribe [::get-table-search-value table-id])
-    (rf/subscribe [::get-table-fields table-id])
-    (rf/subscribe [::get-table-sorted-by table-id])])
+    (rf/subscribe [::table-filters table-id])
+    (rf/subscribe [::table-search-value table-id])
+    (rf/subscribe [::table-fields table-id])
+    (rf/subscribe [::table-sorted-by table-id])])
  (fn [[items filters search-value table-fields sorted-by]]
    (let [filtered-items (if (seq filters)
                           (filter (fn [item] (table-helpers/matches-all-filters? item filters))

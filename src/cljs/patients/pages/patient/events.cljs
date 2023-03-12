@@ -1,6 +1,6 @@
 (ns patients.pages.patient.events
   (:require [re-frame.core :as rf]
-            [patients.components.requests :as rpc]
+            [patients.events :as events]
             [patients.pages.patient.converters :as conv]
             [patients.components.popup :as popup]
             [patients.nav :as nav]))
@@ -18,7 +18,7 @@
            :patient-name {}})))
 
 (rf/reg-event-db
- ::clean-form-errors
+ ::clear-form-errors
  (fn [db [_]]
    (assoc db :errors {})))
 
@@ -59,7 +59,7 @@
 ;; CRUD
 
 (rf/reg-event-db
- ::load-patient-data
+ ::store-patient-data
  (fn [db [_ response]]
    (let [patient (-> response
                      :data
@@ -70,11 +70,12 @@
 (rf/reg-event-fx
  ::get-patient
  (fn [_ [_ patient-uid]]
-   {:dispatch [::rpc/invoke
-               {:method :get-patient
-                :params {:patient-identifier patient-uid}}
-               [::load-patient-data]
-               [::error-response]]}))
+   {:dispatch [::events/invoke
+               {:request
+                {:method :get-patient
+                 :params {:patient-identifier patient-uid}}
+                :on-success [::store-patient-data]
+                :on-failure [::error-response]}]}))
 
 (rf/reg-event-fx
  ::create-patient
@@ -82,30 +83,32 @@
    (let [prepared-data (conv/prepare-patient-data-to-request db)
          request {:method :create-patient
                   :params {:patient-data prepared-data}}]
-     {:dispatch-n [[::clean-form-errors]
-                   [::rpc/invoke
-                    request
-                    [::successful-create]
-                    [::error-response]]]})))
+     {:dispatch-n [[::clear-form-errors]
+                   [::events/invoke
+                    {:request request
+                     :on-success [::successful-create]
+                     :on-failure [::error-response]}]]})))
 
 (rf/reg-event-fx
  ::update-patient
  (fn [{:keys [db]} [_ patient-uid]]
    (let [prepared-data (conv/prepare-patient-data-to-request db)]
-     {:dispatch-n [[::clean-form-errors]
-                   [::rpc/invoke
-                    {:method :update-patient
-                     :params {:patient-identifier patient-uid
-                              :patient-data prepared-data}}
-                    [::successful-update]
-                    [::error-response]]]})))
+     {:dispatch-n [[::clear-form-errors]
+                   [::events/invoke
+                    {:request
+                     {:method :update-patient
+                      :params {:patient-identifier patient-uid
+                               :patient-data prepared-data}}
+                     :on-success [::successful-update]
+                     :on-failure [::error-response]}]]})))
 
 (rf/reg-event-fx
  ::delete-patient
  (fn [_ [_ patient-uid]]
-   {:dispatch-n [[::clean-form-errors]
-                 [::rpc/invoke
-                  {:method :delete-patient
-                   :params {:patient-identifier patient-uid}}
-                  [::successful-delete]
-                  [::error-response]]]}))
+   {:dispatch-n [[::clear-form-errors]
+                 [::events/invoke
+                  {:request
+                   {:method :delete-patient
+                    :params {:patient-identifier patient-uid}}
+                   :on-success [::successful-delete]
+                   :on-failure [::error-response]}]]}))

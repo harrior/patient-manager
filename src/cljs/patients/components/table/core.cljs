@@ -19,7 +19,7 @@
    [:div {:class "search-box"}
     [:input {:class "table-column-filter-input form-control"
              :placeholder (locale :app/search-placeholder)
-             :value @(rf/subscribe [::table-subs/get-table-search-value id])
+             :value @(rf/subscribe [::table-subs/table-search-value id])
              :on-change (fn [e] (let [input-value (helpers/input-value-extractor e)]
                                   (rf/dispatch [::table-events/set-table-search [id input-value]])))}]]])
 
@@ -44,12 +44,12 @@
            (let [value (:value field)
                  on-change-fn (fn [event] (let [input-value (helpers/input-value-extractor event)]
                                             (rf/dispatch [::table-events/set-table-filters [id value input-value]])))
-                 field-value @(rf/subscribe [::table-subs/get-table-filter-value id value])]
+                 field-value @(rf/subscribe [::table-subs/table-filter-value id value])]
              (case (:filter-type field)
-               :input [:input {:class "form-control"
-                               :id value
-                               :value field-value
-                               :on-change on-change-fn}]
+               :text-input [:input {:class "form-control"
+                                    :id value
+                                    :value field-value
+                                    :on-change on-change-fn}]
 
                :select (let [options (->> items
                                           (map value)

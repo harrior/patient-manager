@@ -12,16 +12,16 @@
 
 (defn init
   []
-  (let [patient-uid @(rf/subscribe [::subs/get-patient-uid])]
-    (rf/dispatch [::evt/clean-form-errors])
+  (let [patient-uid @(rf/subscribe [::subs/patient-uid])]
+    (rf/dispatch [::evt/clear-form-errors])
     (if (nil? patient-uid)
       (rf/dispatch [::evt/clear-form])
       (rf/dispatch [::evt/get-patient patient-uid]))))
 
 (defn page-header
   []
-  (let [patient-uid @(rf/subscribe [::subs/get-patient-uid])
-        create-patient? @(rf/subscribe [::subs/create-patient?])]
+  (let [patient-uid @(rf/subscribe [::subs/patient-uid])
+        create-patient? @(rf/subscribe [::subs/new-patient?])]
     [:header {:class "header"}
      [:h1 (if create-patient?
             (locale :app/add-patient)
@@ -46,7 +46,7 @@
 (defn patient-data
   []
   ^{:key (random-uuid)}
-  [ui/fieldset {:title :app/patient-data}
+  [ui/fieldset-row {:title :app/patient-data}
    ^{:key (random-uuid)}
    [ui/fieldset-column
     ^{:key (random-uuid)}
@@ -84,7 +84,7 @@
 (defn patient-address
   []
   ^{:key (random-uuid)}
-  [ui/fieldset {:title :app/patient-address}
+  [ui/fieldset-row {:title :app/patient-address}
    ^{:key (random-uuid)}
    [ui/fieldset-column
     ^{:key (random-uuid)}
