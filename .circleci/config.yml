@@ -21,10 +21,9 @@ jobs:
     steps:
       - checkout
       - run: | 
-              curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash
+              curl -sL https://deb.nodesource.com/setup_19.x | sudo -E bash
               sudo apt-get install -y nodejs
               sudo npm install -g shadow-cljs
-              sudo npm install -g npx
       - run: lein deps
       - run: lein uberjar
       - persist_to_workspace:
