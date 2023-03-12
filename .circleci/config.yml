@@ -21,10 +21,7 @@ jobs:
     steps:
       - checkout
       - run: | 
-              sudo apt-get update
-              sudo apt-get install r-base
-              sudo apt-get install r-recommended  
-              curl -sL https://deb.nodesource.com/setup_19.x | sudo -E bash
+              curl -sL https://deb.nodesource.com/setup_18.x | sudo -E bash
               sudo apt-get install -y nodejs
               sudo npm install -g shadow-cljs
       - run: lein deps
