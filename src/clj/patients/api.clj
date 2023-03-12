@@ -1,4 +1,5 @@
 (ns patients.api
+  "This module contains API functions."
   (:require [next.jdbc.sql :as sql]
             [patients.responses :as responses]
             [patients.serializers :as serializers]
@@ -8,29 +9,13 @@
 ;; Helpers
 ;;
 
-(defn validate-patient-identifier
-  "Throws an exception with message ':incorrect-patient-identifier'
-   if the given patient-identifier is not a valid UUID."
-  [patient-identifier]
-  (when-not (uuid? patient-identifier)
-    (throw (Exception. ":incorrect-patient-identifier"))))
-
 (defn get-patient-by-id
-   "Returns the patient record with the given identifier,
-    or throws an exception with message :patient-not-found if the patient is not found."
-   [db patient-identifier]
-   (let [patient (-> (sql/get-by-id db :patients patient-identifier)
-                     :patients/patient)]
-     (if (nil? patient)
-       (throw (Exception. ":patient-not-found"))
-       patient)))
-
-(defn generate-validate-error-response
-  "Generates a response with a validation error status and error paths from the given patient data."
-  [patient-data]
-  (let [error-paths (validate/get-patient-validation-error-paths patient-data)]
-    (responses/generate-response {:status :validate-error
-                                  :data {:error-paths error-paths}})))
+  "Returns the patient record with the given identifier, or nil if the patient is not found."
+  [db patient-identifier]
+  (try
+    (-> (sql/get-by-id db :patients patient-identifier)
+        :patients/patient)
+    (catch Exception _ (identity nil))))
 
 ;;
 ;; Status
@@ -62,10 +47,16 @@
    :patient-identifier - UUID of the patient to retrieve
    Returns patient's map."
   [{:keys [db patient-identifier]}]
-  (validate-patient-identifier patient-identifier)
-  (let [patient (get-patient-by-id db patient-identifier)]
-    (responses/generate-response {:status :ok
-                                  :data {:patient (assoc patient :identifier patient-identifier)}})))
+  (cond (not (validate/patient-identifier-valid? patient-identifier))
+        (responses/generate-incorrect-patient-id-error-response)
+
+        (nil? (get-patient-by-id db patient-identifier))
+        (responses/generate-not-found-error-response)
+
+        :else
+        (let [patient (get-patient-by-id db patient-identifier)]
+          (responses/generate-response {:status :ok
+                                        :data {:patient (assoc patient :identifier patient-identifier)}}))))
 
 (defn create-patient
   "Creates a new patient.
@@ -74,7 +65,7 @@
    Returns UUID of created patient."
   [{:keys [db patient-data]}]
   (if-not (validate/patient-is-valid? patient-data)
-    (generate-validate-error-response patient-data)
+    (responses/generate-validate-error-response patient-data)
 
     (let [new-patient-uuid (java.util.UUID/randomUUID)
           data {:id new-patient-uuid
@@ -89,9 +80,11 @@
    :patient-identifier - the UUID of the patient to delete
    Returns only :ok status in case of succefull deleting."
   [{:keys [db patient-identifier]}]
-  (validate-patient-identifier patient-identifier)
-  (sql/delete! db :patients {:id patient-identifier})
-  (responses/generate-response {:status :ok}))
+  (if-not (validate/patient-identifier-valid? patient-identifier)
+    (responses/generate-incorrect-patient-id-error-response)
+    (do
+      (sql/delete! db :patients {:id patient-identifier})
+      (responses/generate-response {:status :ok}))))
 
 (defn update-patient
   "Updates a patient's data in the database.
@@ -99,12 +92,36 @@
    :patient-identifier - the string of the patient's UUID to update
    :patient-data - the map with all patient data to insert into the database"
   [{:keys [db patient-identifier patient-data]}]
-  (validate-patient-identifier patient-identifier)
-  (get-patient-by-id db patient-identifier)
 
-  (if-not (validate/patient-is-valid? patient-data)
-    (generate-validate-error-response patient-data)
+  (cond (not (validate/patient-identifier-valid? patient-identifier))
+        (responses/generate-incorrect-patient-id-error-response)
 
-    (do (sql/update! db :patients {:patient patient-data} {:id patient-identifier})
-        (responses/generate-response {:status :ok
-                                      :data {:patients patient-data}}))))
+        (nil? (get-patient-by-id db patient-identifier))
+        (responses/generate-not-found-error-response)
+
+        (not (validate/patient-is-valid? patient-data))
+        (responses/generate-validate-error-response patient-data)
+
+        :else
+        (do (sql/update! db :patients {:patient patient-data} {:id patient-identifier})
+            (responses/generate-response {:status :ok
+                                          :data {:patients patient-data}}))))
+
+(defn update-patient
+  "Updates a patient's data in the database.
+   :db - the JDBC database connection
+   :patient-identifier - the string of the patient's UUID to update
+   :patient-data - the map with all patient data to insert into the database"
+  [{:keys [db patient-identifier patient-data]}]
+  (cond (not (validate/patient-identifier-valid? patient-identifier))
+        (responses/generate-incorrect-patient-id-error-response)
+
+        (nil? (get-patient-by-id db patient-identifier))
+        (responses/generate-not-found-error-response)
+
+        (not (validate/patient-is-valid? patient-data))
+        (responses/generate-validate-error-response patient-data)
+
+        :else
+        (do (sql/update! db :patients {:patient patient-data} {:id patient-identifier})
+            (responses/generate-response {:status :ok :data {:patients patient-data}}))))

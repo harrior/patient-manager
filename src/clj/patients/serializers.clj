@@ -6,7 +6,7 @@
    Accepts a `patient` record, and returns a serialised flat map of patient data
 
   Args:
-    patient (map): A patient record.
+    patient-record (map): A patient record.
 
   Returns:
     A map containing the serialised patient data with the following keys:
@@ -19,14 +19,12 @@
 
   Raises:
     Exception: If any required fields are missing in the `patient` record."
-  [patient]
-  (let [patient* (:patients/patient patient)
-        fullname (get-in patient* [:name 0 :text])
-        address (get-in patient* [:address 0 :text])
-        gender (:gender patient*)
-        birth-date (:birth-date patient*)
-        identifier (:patients/id patient)
-        insurance-number (:insurance-number patient*)]
+  [patient-record]
+  (let [patient (:patients/patient patient-record)
+        identifier (:patients/id patient-record)
+        fullname (get-in patient [:name 0 :text])
+        address (get-in patient [:address 0 :text])
+        {:keys [gender birth-date insurance-number]} patient]
     {:insurance-number insurance-number
      :fullname fullname
      :address address

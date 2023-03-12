@@ -115,7 +115,7 @@
 (deftest test-create-patient-with-valid-data
   (let [db mock-db-conn
         response (api/create-patient {:db db :patient-data valid-patient-data})
-        {:keys [status headers api-status patient-identifier]}(parse-response response)
+        {:keys [status headers api-status patient-identifier]} (parse-response response)
         patient-from-db (-> (sql/get-by-id db :patients patient-identifier)
                             :patients/patient)]
     (is (= status 200))
@@ -169,9 +169,9 @@
     (is (= count-of-records 10))))
 
 (deftest test-list-patients-null-db)
-  (let [db nil]
-    (is (thrown? Exception
-                 (api/list-patients {:db db}))))
+(let [db nil]
+  (is (thrown? Exception
+               (api/list-patients {:db db}))))
 
 ;; get-patient
 
@@ -181,7 +181,7 @@
         _ (sql/insert! db :patients {:id patient-uuid
                                      :patient valid-patient-data})
         get-response (api/get-patient {:db db
-                                          :patient-identifier patient-uuid})
+                                       :patient-identifier patient-uuid})
 
         {:keys [status headers api-status data]} (parse-response get-response)
         patient-from-db (:patient data)]
@@ -190,28 +190,27 @@
     (is (= api-status :ok))
     (is (= (dissoc patient-from-db :identifier) valid-patient-data))))
 
-(deftest test-get-patient-throw-exception-on-incorrect-patient-uid
+(deftest test-get-patient-return-incorrect-patient-uid-error
   (let [db mock-db-conn]
-
-    (is (thrown? Exception (api/get-patient {:db db
-                                             :patient-identifier "just-string"})))
-    (is (thrown? Exception (api/get-patient {:db db
-                                             :patient-identifier 12312313})))
-    (is (thrown? Exception (api/get-patient {:db db
-                                             :patient-identifier nil})))))
+    (is (= (responses/generate-incorrect-patient-id-error-response)
+           (api/get-patient {:db db :patient-identifier "just-string"})))
+    (is (= (responses/generate-incorrect-patient-id-error-response)
+           (api/get-patient {:db db :patient-identifier 12312313})))
+    (is (= (responses/generate-incorrect-patient-id-error-response)
+           (api/get-patient {:db db :patient-identifier nil})))))
 
 (deftest test-get-patient-throw-exception-on-patient-not-found
   (let [db mock-db-conn]
-    (is (thrown-with-msg? Exception #":patient-not-found"
-                          (api/get-patient {:db db
-                                            :patient-identifier (random-uuid)})))))
+    (is (= (responses/generate-not-found-error-response)
+           (api/get-patient {:db db :patient-identifier (random-uuid)})))))
+(api/get-patient {:db mock-db-conn :patient-identifier (random-uuid)})
 
 (deftest test-get-patient-null-db
   (let [db nil
         patient-uuid (random-uuid)]
-    (is (thrown? Exception
-                 (api/get-patient {:db db
-                                   :patient-identifier patient-uuid})))))
+    (is (= (responses/generate-not-found-error-response)
+           (api/get-patient {:db db :patient-identifier patient-uuid})))))
+(test-get-patient-null-db)
 
 ;; delete-patient
 
@@ -222,7 +221,7 @@
                                      :patient valid-patient-data})
         delete-response (api/delete-patient {:db db
                                              :patient-identifier patient-uuid})
-        {:keys [status headers api-status data]} (parse-response delete-response)
+        {:keys [status headers api-status]} (parse-response delete-response)
         patient-in-db (sql/get-by-id mock-db-conn :patients (random-uuid))]
 
     (is (= status 200))
@@ -230,14 +229,14 @@
     (is (= api-status :ok))
     (is (nil? patient-in-db))))
 
-(deftest test-delete-patient-throw-exception-on-incorrect-patient-uid
+(deftest test-delete-patient-return-on-incorrect-patient-uid-error-response
   (let [db mock-db-conn]
-    (is (thrown? Exception (api/delete-patient {:db db
-                                                :patient-identifier "just-string"})))
-    (is (thrown? Exception (api/delete-patient {:db db
-                                                :patient-identifier 12312313})))
-    (is (thrown? Exception (api/delete-patient {:db db
-                                                :patient-identifier nil})))))
+    (is (= (responses/generate-incorrect-patient-id-error-response)
+           (api/delete-patient {:db db :patient-identifier "just-string"})))
+    (is (= (responses/generate-incorrect-patient-id-error-response)
+           (api/delete-patient {:db db :patient-identifier 12312313})))
+    (is (= (responses/generate-incorrect-patient-id-error-response)
+           (api/delete-patient {:db db :patient-identifier nil})))))
 
 (deftest test-delete-patient-null-db
   (let [db nil
@@ -248,21 +247,20 @@
 
 ;; update-patient
 
-(deftest test-update-patient-incorrect-uuid
+(deftest test-update-patient-return-on-incorrect-patient-uid-error-response
   (let [db mock-db-conn]
 
-    (is (thrown? Exception (api/update-patient {:db db
-                                                :patient-identifier "just-string"})))
-    (is (thrown? Exception (api/update-patient {:db db
-                                                :patient-identifier 12312313})))
-    (is (thrown? Exception (api/update-patient {:db db
-                                                :patient-identifier nil})))))
+    (is (= (responses/generate-incorrect-patient-id-error-response)
+           (api/update-patient {:db db :patient-identifier "just-string"})))
+    (is (= (responses/generate-incorrect-patient-id-error-response)
+           (api/update-patient {:db db :patient-identifier 12312313})))
+    (is (= (responses/generate-incorrect-patient-id-error-response)
+           (api/update-patient {:db db :patient-identifier nil})))))
 
 (deftest test-update-patient-nonexistent-patient
   (let [db mock-db-conn]
-    (is (thrown-with-msg? Exception #":patient-not-found"
-                          (api/update-patient {:db db
-                                               :patient-identifier (random-uuid)})))))
+    (is (= (responses/generate-not-found-error-response)
+           (api/update-patient {:db db :patient-identifier (random-uuid)})))))
 
 (deftest test-update-patient-with-invalid-data
   (let [db mock-db-conn
@@ -304,10 +302,9 @@
 (deftest test-update-patient-with-null-db
   (let [db nil
         patient-uuid (random-uuid)]
-    (is (thrown? Exception
-                 (api/update-patient {:db db :patient-identifier patient-uuid
-                                      :patient-data valid-patient-data})))))
-
+    (is (= (responses/generate-not-found-error-response)
+           (api/update-patient {:db db :patient-identifier patient-uuid
+                                :patient-data valid-patient-data})))))
 ;;
 ;; Helpers
 ;;
@@ -315,37 +312,36 @@
 ;; validate-patient-identifier
 
 (deftest test-validate-patient-identifier-correct-uuid
-    (let [uuid (random-uuid)]
-      (is (nil? (api/validate-patient-identifier uuid)))))
+  (let [uuid (random-uuid)]
+    (is (true? (validate/patient-identifier-valid? uuid)))))
 
 (deftest test-validate-patient-identifier-incorrect-uuid
-    (let [uuid "not-a-uuid"]
-      (is (thrown? Exception (api/validate-patient-identifier uuid)))))
+  (is (false? (validate/patient-identifier-valid? "not-a-uuid"))))
 
 ;; get-patient-by-id
 
 (deftest test-get-patient-by-id-success
-    (let [db mock-db-conn
-          patient-uuid (random-uuid)
-          _ (sql/insert! db :patients {:id patient-uuid
-                                       :patient valid-patient-data})]
-      (is (= valid-patient-data (dissoc (api/get-patient-by-id db patient-uuid) :identifier)))))
+  (let [db mock-db-conn
+        patient-uuid (random-uuid)
+        _ (sql/insert! db :patients {:id patient-uuid
+                                     :patient valid-patient-data})]
+    (is (= valid-patient-data (dissoc (api/get-patient-by-id db patient-uuid) :identifier)))))
 
-(deftest test-get-patient-by-incorrect-uuid
-    (let [db mock-db-conn]
-      (is (thrown? Exception (api/get-patient-by-id db "invalid-identifier")))
-      (is (thrown? Exception (api/get-patient-by-id db "")))
-      (is (thrown? Exception (api/get-patient-by-id db 123)))
-      (is (thrown? Exception (api/get-patient-by-id db nil)))))
+(deftest test-get-patient-return-nil-on-incorrect-patient-uid
+  (let [db mock-db-conn]
+    (is (= nil (api/get-patient-by-id db "invalid-identifier")))
+    (is (= nil (api/get-patient-by-id db "")))
+    (is (= nil (api/get-patient-by-id db 123)))
+    (is (= nil (api/get-patient-by-id db nil)))))
 
 ;; generate-validate-error-response
 
 (deftest test-generate-validate-error-response-valid
-      (is (= (responses/generate-response {:status :validate-error
-                                           :data {:error-paths (validate/get-patient-validation-error-paths valid-patient-data)}})
-             (api/generate-validate-error-response valid-patient-data))))
+  (is (= (responses/generate-response {:status :validate-error
+                                       :data {:error-paths (validate/get-patient-validation-error-paths valid-patient-data)}})
+         (responses/generate-validate-error-response valid-patient-data))))
 
 (deftest test-generate-validate-error-response-invalid
-    (is (= (responses/generate-response {:status :validate-error
-                                         :data {:error-paths (validate/get-patient-validation-error-paths invalid-patient-data)}})
-           (api/generate-validate-error-response invalid-patient-data))))
+  (is (= (responses/generate-response {:status :validate-error
+                                       :data {:error-paths (validate/get-patient-validation-error-paths invalid-patient-data)}})
+         (responses/generate-validate-error-response invalid-patient-data))))

@@ -6,8 +6,8 @@
 ;; Common specs
 ;;
 
-(s/def ::ne-string (s/and string?
-                          not-empty))
+(s/def ::non-empty-string (s/and string?
+                                 not-empty))
 
 (s/def ::date (s/and #(re-matches #"\d{4}-\d{2}-\d{2}" %)
                      #(let [data-pattern (java.text.SimpleDateFormat. "yyyy-MM-dd")
@@ -26,11 +26,11 @@
 ;;
 
 (s/def :name/use #{"usual" "official" "temp" "nickname" "anonymous" "old" "maiden"})
-(s/def :name/text ::ne-string)
-(s/def :name/family ::ne-string)
-(s/def :name/given (s/coll-of ::ne-string))
-(s/def :name/prefix (s/coll-of ::ne-string))
-(s/def :name/suffix (s/coll-of ::ne-string))
+(s/def :name/text ::non-empty-string)
+(s/def :name/family ::non-empty-string)
+(s/def :name/given (s/coll-of ::non-empty-string))
+(s/def :name/prefix (s/coll-of ::non-empty-string))
+(s/def :name/suffix (s/coll-of ::non-empty-string))
 (s/def :name/period ::period)
 
 (s/def ::name (s/coll-of
@@ -47,13 +47,13 @@
 
 (s/def :address/use #{"home" "work" "temp" "old" "billing"})
 (s/def :address/type #{"postal" "physical" "both"})
-(s/def :address/text ::ne-string)
-(s/def :address/line ::ne-string)
-(s/def :address/city ::ne-string)
-(s/def :address/district ::ne-string)
-(s/def :address/state ::ne-string)
-(s/def :address/postal-code ::ne-string)
-(s/def :address/country ::ne-string)
+(s/def :address/text ::non-empty-string)
+(s/def :address/line ::non-empty-string)
+(s/def :address/city ::non-empty-string)
+(s/def :address/district ::non-empty-string)
+(s/def :address/state ::non-empty-string)
+(s/def :address/postal-code ::non-empty-string)
+(s/def :address/country ::non-empty-string)
 (s/def :address/period ::period)
 (s/def ::address (s/coll-of
                   (s/keys :req-un [:address/use
@@ -76,7 +76,7 @@
 (s/def :patient/identifier uuid?)
 (s/def :patient/gender #{"male" "female" "other" "unknown"})
 (s/def :patient/birth-date ::date)
-(s/def :patient/insurance-number (s/and ::ne-string
+(s/def :patient/insurance-number (s/and ::non-empty-string
                                         #(re-matches #"\d{16}" %)))
 
 (s/def ::patient
@@ -115,3 +115,8 @@
   "Checks whether a patient record is valid."
   [patient]
   (s/valid? ::patient patient))
+
+(defn patient-identifier-valid?
+  "Returns true if the given patient-identifier is a valid UUID, false otherwise."
+  [patient-identifier]
+  (uuid? patient-identifier))

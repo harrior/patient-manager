@@ -1,5 +1,6 @@
 (ns patients.responses
-  "Namespace for generating responses for HTTP requests.")
+  "Namespace for generating responses for HTTP requests."
+  (:require [patients.validate :as validate]))
 
 (defn generate-response
   "Returns a response map containing the status, headers, and body.
@@ -27,3 +28,20 @@
      :body (pr-str (merge {:status status}
                           (when data
                             {:data data})))}))
+
+(defn generate-validate-error-response
+  "Generates a response with a validation error status and error paths from the given patient data."
+  [patient-data]
+  (let [error-paths (validate/get-patient-validation-error-paths patient-data)]
+    (generate-response {:status :validate-error
+                                  :data {:error-paths error-paths}})))
+
+(defn generate-incorrect-patient-id-error-response
+  "Generates an error response indicating an incorrect patient identifier"
+  []
+  (generate-response {:status :error :data {:message :incorrect-patient-identifier}}))
+
+(defn generate-not-found-error-response
+  "Generates an error response indicating the requested patient isn't found"
+  []
+  (generate-response {:status :error :data {:message "Patient not found"}}))

@@ -47,9 +47,9 @@
            (validate/get-patient-validation-error-paths invalid-patient-data))))
 
 (deftest test-ne-string-spec
-  (is (not (spec/valid? ::validate/ne-string 123)))
-  (is (not (spec/valid? ::validate/ne-string "")))
-  (is (spec/valid? ::validate/ne-string "string")))
+  (is (not (spec/valid? ::validate/non-empty-string 123)))
+  (is (not (spec/valid? ::validate/non-empty-string "")))
+  (is (spec/valid? ::validate/non-empty-string "string")))
 
 (deftest test-date-string-spec
   (is (spec/valid? ::validate/date "2001-01-01"))
