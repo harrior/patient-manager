@@ -23,10 +23,10 @@ jobs:
       - run: |
               curl -sL https://deb.nodesource.com/setup_15.x | sudo -E bash
               sudo apt-get install -y nodejs
-              sudo npm install -g shadow-cljs
-      - run: lein run -m shadow.cljs.devtools.cli release app --source-maps 
+              sudo npm install -g shadow-cljs 
       - run: lein deps
-      - run: lein uberjar-cljs
+      - run: lein run -m shadow.cljs.devtools.cli release app --source-maps
+      - run: lein uberjar
       - persist_to_workspace:
           root: ~/patients
           paths:
