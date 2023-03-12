@@ -48,7 +48,7 @@ jobs:
       - run: lein run -m shadow.cljs.devtools.cli release app --source-maps
       - run: lein uberjar
       - persist_to_workspace:
-          root: ~/
+          root: ~/build
           paths:
             - target
 
