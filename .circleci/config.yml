@@ -12,24 +12,24 @@ executors:
 
 
 jobs:
-  build:
-    working_directory: ~/build
-    docker:
-      - image: ubuntu
-    steps:
-      - checkout
-      - run: apt update -y
-      - run: apt install -y curl
-      - run: curl -fsSL https://deb.nodesource.com/setup_19.x | bash -
-      - run: apt install -y nodejs
-      - run: npm install
-      - run: apt install leiningen -y
-      - run: lein deps
-      - run: lein uberjar
-      - persist_to_workspace:
-          root: ~/build
-          paths:
-            - target
+  # build:
+  #   working_directory: ~/build
+  #   docker:
+  #     - image: ubuntu
+  #   steps:
+  #     - checkout
+  #     - run: apt update -y
+  #     - run: apt install -y curl
+  #     - run: curl -fsSL https://deb.nodesource.com/setup_19.x | bash -
+  #     - run: apt install -y nodejs
+  #     - run: npm install
+  #     - run: apt install leiningen -y
+  #     - run: lein deps
+  #     - run: lein uberjar
+  #     - persist_to_workspace:
+  #         root: ~/build
+  #         paths:
+            # - target
 
   build-docker:
     executor: docker-publisher
@@ -49,20 +49,20 @@ jobs:
           paths:
             - ./image.tar
 
-  # publish-docker:
-  #   executor: docker-publisher
-  #   steps:
-  #     - attach_workspace:
-  #         at: .
-  #     - setup_remote_docker
-  #     - run:
-  #         name: Load archived Docker image
-  #         command: docker load -i image.tar
-  #     - run:
-  #         name: Publish Docker Image to Docker Hub
-  #         command: |
-  #           echo "${DOCKERHUB_PASS}" | docker login -u "${DOCKERHUB_USERNAME}" --password-stdin
-  #           docker push $IMAGE_NAME:latest
+  publish-docker:
+    executor: docker-publisher
+    steps:
+      - attach_workspace:
+          at: .
+      - setup_remote_docker
+      - run:
+          name: Load archived Docker image
+          command: docker load -i image.tar
+      - run:
+          name: Publish Docker Image to Docker Hub
+          command: |
+            echo "${DOCKERHUB_PASS}" | docker login -u "${DOCKERHUB_USERNAME}" --password-stdin
+            docker push $IMAGE_NAME:latest
 
   # deploy:
   #   docker:
@@ -82,13 +82,13 @@ jobs:
 workflows:
   build-and-deploy:
     jobs:
-      - build
-      - build-docker:
+      # - build
+      - build-docker
+          # requires:
+          #   - build
+      - publish-docker:
           requires:
-            - build
-      # - publish-docker:
-      #     requires:
-      #       - build-docker
+            - build-docker
       # - deploy:
       #     requires:
       #       - publish-docker
