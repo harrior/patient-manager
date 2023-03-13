@@ -18,12 +18,11 @@ jobs:
     docker:
       - image: ubuntu
 
-      - image: cimg/postgres:14.0
+      - image: postgres:13.0-alpine
         environment:
           POSTGRES_USER: postgres
-        auth:
-          username: postgres
-          password: postgres 
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: medical 
 
     steps:
       - checkout
