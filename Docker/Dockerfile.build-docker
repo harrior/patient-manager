@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17-jdk-jammy
+FROM openjdk:8-jre-alpine
 WORKDIR /app
 COPY ./target/ .
 CMD java -jar patients-0.1.0-standalone.jar
