@@ -19,15 +19,13 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
+      - run: docker-compose -f ./Docker/docker-compose-postgres.yml up -d 
       - run: apt update -y
       - run: apt install -y curl
       - run: curl -fsSL https://deb.nodesource.com/setup_19.x | bash -
       - run: apt install -y nodejs
       - run: npm install
       - run: apt install leiningen -y
-      - run: docker --version
-      - run: docker-compose --version
-      - run: docker-compose -f ./Docker/docker-compose-postgres.yml up -d 
       - run: lein deps
       - run: lein uberjar
       - persist_to_workspace:
