@@ -18,18 +18,16 @@ jobs:
       - image: ubuntu
     steps:
       - checkout
+      - setup_remote_docker
       - run: apt update -y
       - run: apt install -y curl
       - run: curl -fsSL https://deb.nodesource.com/setup_19.x | bash -
       - run: apt install -y nodejs
       - run: npm install
       - run: apt install leiningen -y
-      - run: curl -fsSL https://get.docker.com -o get-docker.sh
-      - run: sh get-docker.sh
-      - run: curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-      - run: sudo chmod +x /usr/local/bin/docker-compose
       - run: docker --version
       - run: docker-compose --version
+      - run: docker-compose -f ./Docker/docker-compose-postgres.yml up -d 
       - run: lein deps
       - run: lein uberjar
       - persist_to_workspace:
