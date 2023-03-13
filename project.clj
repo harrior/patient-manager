@@ -51,7 +51,7 @@
 
   :manifest {"Main-Class" "patients.core"}
 
-  :target-path "target/%s"
+  :target-path "target/"
 
   :profiles {:shadow-cljs
              {:dependencies [[shadow-cljs/devtools "2.20.20"]]

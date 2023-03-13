@@ -30,4 +30,4 @@ package-lock.json
 .env
 output-window/output.calva-repl
 .shadow-cljs/
-node-modules/
+node_modules/
