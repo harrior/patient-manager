@@ -19,7 +19,7 @@ jobs:
       - image: ubuntu
     steps:
       - checkout
-      - setup_remote_docker
+      - docker/install-docker
       - docker/install-docker-compose
       - run: docker-compose -f ./Docker/docker-compose-postgres.yml up -d 
       - run: apt update -y
