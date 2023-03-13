@@ -37,7 +37,7 @@ jobs:
     steps:
       - checkout
       - attach_workspace:
-          at: .
+          at: ~/build
       - setup_remote_docker
       - run: ls -la
       - run:
