@@ -39,6 +39,7 @@ jobs:
       - attach_workspace:
           at: .
       - setup_remote_docker
+      - run: ls -la
       - run:
           name: Build latest Docker image
           command: docker build -f ./Docker/Dockerfile.build-docker -t $IMAGE_NAME:latest .
@@ -50,20 +51,20 @@ jobs:
           paths:
             - ./image.tar
 
-  publish-docker:
-    executor: docker-publisher
-    steps:
-      - attach_workspace:
-          at: .
-      - setup_remote_docker
-      - run:
-          name: Load archived Docker image
-          command: docker load -i image.tar
-      - run:
-          name: Publish Docker Image to Docker Hub
-          command: |
-            echo "${DOCKERHUB_PASS}" | docker login -u "${DOCKERHUB_USERNAME}" --password-stdin
-            docker push $IMAGE_NAME:latest
+  # publish-docker:
+  #   executor: docker-publisher
+  #   steps:
+  #     - attach_workspace:
+  #         at: .
+  #     - setup_remote_docker
+  #     - run:
+  #         name: Load archived Docker image
+  #         command: docker load -i image.tar
+  #     - run:
+  #         name: Publish Docker Image to Docker Hub
+  #         command: |
+  #           echo "${DOCKERHUB_PASS}" | docker login -u "${DOCKERHUB_USERNAME}" --password-stdin
+  #           docker push $IMAGE_NAME:latest
 
   # deploy:
   #   docker:
@@ -87,9 +88,9 @@ workflows:
       - build-docker:
           requires:
             - build
-      - publish-docker:
-          requires:
-            - build-docker
+      # - publish-docker:
+      #     requires:
+      #       - build-docker
       # - deploy:
       #     requires:
       #       - publish-docker
