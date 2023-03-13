@@ -24,7 +24,10 @@ jobs:
       - run: apt install -y nodejs
       - run: npm install
       - run: apt install leiningen -y
-      - run: apt install docker-ce docker-ce-cli containerd.io docker-compose
+      - run: curl -fsSL https://get.docker.com -o get-docker.sh
+      - run: sh get-docker.sh
+      - run: curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+      - run: sudo chmod +x /usr/local/bin/docker-compose
       - run: docker --version
       - run: docker-compose --version
       - run: lein deps
