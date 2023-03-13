@@ -1,2 +1,4 @@
 FROM eclipse-temurin:17-jdk-jammy
-CMD java -jar ./target/patients-0.1.0-standalone.jar
+WORKDIR /app
+COPY ./target/ .
+CMD java -jar patients-0.1.0-standalone.jar
