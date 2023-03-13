@@ -24,6 +24,9 @@ jobs:
       - run: apt install -y nodejs
       - run: npm install
       - run: apt install leiningen -y
+      - run: apt install docker-ce docker-ce-cli containerd.io docker-compose
+      - run: docker --version
+      - run: docker-compose --version
       - run: lein deps
       - run: lein uberjar
       - persist_to_workspace:
