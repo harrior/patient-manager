@@ -22,10 +22,11 @@ jobs:
       - docker/install-docker
       - run: apt update -y
       - run: apt install -y curl
-      - run: curl -fsSL https://deb.nodesource.com/setup_19.x | bash -
-      - docker/install-docker-compose
-      - run: docker-compose -f ./Docker/docker-compose-postgres.yml up -d 
+      - run: curl -fsSL https://deb.nodesource.com/setup_19.x | bash - 
       - run: apt install -y nodejs
+      - run: curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+      - run: chmod +x /usr/local/bin/docker-compose
+      - run: docker-compose -f ./Docker/docker-compose-postgres.yml up -d
       - run: npm install
       - run: apt install leiningen -y
       - run: lein deps
