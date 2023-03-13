@@ -11,9 +11,8 @@ executors:
     docker:
       - image: circleci/buildpack-deps:stretch
 
-
 jobs:
-  build:
+  build-and-test:
     working_directory: ~/build
     docker:
       - image: ubuntu
@@ -26,15 +25,14 @@ jobs:
 
     steps:
       - checkout
-      - run: apt update -y
-      - run: apt install -y curl
-      - run: apt install apt-transport-https ca-certificates curl software-properties-common -y
-      - run: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
-      - run: add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable" -y
-      - run: curl -fsSL https://deb.nodesource.com/setup_19.x | bash - 
-      - run: apt install -y nodejs
-      - run: npm install
-      - run: apt install leiningen -y
+      - run: 
+          name: Install Node.js, Leiningen, and npm
+          command: | 
+                    apt update -y
+                    apt install -y leiningen curl
+                    curl -fsSL https://deb.nodesource.com/setup_19.x | bash - 
+                    apt install -y nodejs
+                    npm install
       - run: lein deps
       - run: lein test
       - run: lein uberjar
@@ -50,7 +48,6 @@ jobs:
       - attach_workspace:
           at: ~/build
       - setup_remote_docker
-      - run: ls -la
       - run:
           name: Build latest Docker image
           command: docker build -f ./Docker/Dockerfile.build-docker -t $IMAGE_NAME:latest .
@@ -95,10 +92,10 @@ jobs:
 workflows:
   build-and-deploy:
     jobs:
-      - build
+      - build-and-test
       - build-docker:
           requires:
-            - build
+            - build-and-test
       - publish-docker:
           requires:
             - build-docker
