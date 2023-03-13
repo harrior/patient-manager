@@ -19,6 +19,8 @@ jobs:
       - image: ubuntu
     steps:
       - checkout
+      - run: ls -la
+      - run: ls -la Docker/
       - run: apt update -y
       - run: apt install -y curl
       - run: apt install apt-transport-https ca-certificates curl software-properties-common -y
