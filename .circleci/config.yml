@@ -20,11 +20,11 @@ jobs:
     steps:
       - checkout
       - docker/install-docker
-      - docker/install-docker-compose
-      - run: docker-compose -f ./Docker/docker-compose-postgres.yml up -d 
       - run: apt update -y
       - run: apt install -y curl
       - run: curl -fsSL https://deb.nodesource.com/setup_19.x | bash -
+      - docker/install-docker-compose
+      - run: docker-compose -f ./Docker/docker-compose-postgres.yml up -d 
       - run: apt install -y nodejs
       - run: npm install
       - run: apt install leiningen -y
