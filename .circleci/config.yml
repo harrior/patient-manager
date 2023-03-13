@@ -26,7 +26,7 @@ jobs:
       - run: add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable" -y
       - run: apt-cache policy docker-ce
       - run: apt install -y docker-ce docker-ce-cli containerd.io
-      - run: systemctl start docker
+      - run: service docker start
       - run: docker run -p 5432:5432 -v /var/lib/postgresql/data/ -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=medical postgres:13.0-alpine
       - run: curl -fsSL https://deb.nodesource.com/setup_19.x | bash - 
       - run: apt install -y nodejs
