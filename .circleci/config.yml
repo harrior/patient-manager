@@ -25,11 +25,13 @@ jobs:
       - run: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
       - run: add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable" -y
       - run: apt-cache policy docker-ce
-      - run: apt install -y docker-ce
+      - run: apt install -y docker-ce docker-ce-cli containerd.io
+      - run: docker run -p 5432:5432 -v /var/lib/postgresql/data/ -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=medical postgres:13.0-alpine
       - run: curl -fsSL https://deb.nodesource.com/setup_19.x | bash - 
       - run: apt install -y nodejs
-      - run: curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-      - run: chmod +x /usr/local/bin/docker-compose
+      # - run: curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+      # - run: chmod +x /usr/local/bin/docker-compose
+
       - run: docker-compose -f Docker/docker-compose-postgres.yml up -d
       - run: npm install
       - run: apt install leiningen -y
