@@ -1,6 +1,7 @@
 version: 2.1
 orbs:
   kubernetes: circleci/kubernetes@1.3.1
+  docker: circleci/docker@2.2.0
 
 executors:
   docker-publisher:
@@ -19,6 +20,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
+      - docker/install-docker-compose
       - run: docker-compose -f ./Docker/docker-compose-postgres.yml up -d 
       - run: apt update -y
       - run: apt install -y curl
