@@ -1,7 +1,4 @@
 version: 2.1
-orbs:
-  kubernetes: circleci/kubernetes@1.3.1
-  docker: circleci/docker@2.2.0
 
 executors:
   docker-publisher:
@@ -74,21 +71,6 @@ jobs:
             echo "${DOCKERHUB_PASS}" | docker login -u "${DOCKERHUB_USERNAME}" --password-stdin
             docker push $IMAGE_NAME:latest
 
-  # deploy:
-  #   docker:
-  #     - image: cimg/base:stable
-  #   steps:
-  #     - checkout
-  #     - run: echo "export KUBE_URL=https://127.0.0.1:58592" >> $BASH_ENV && source $BASH_ENV
-  #     - run: echo "export KUBECONFIG=~/.kube/config" >> $BASH_ENV && source $BASH_ENV
-  #     - run: echo "export KUBE_CA_PEM_FILE=~/.kube/ca.crt" >> $BASH_ENV && source $BASH_ENV
-  #     - kubernetes/install
-  #     - kubernetes/install-kubeconfig:
-  #        kubeconfig: KUBE_CONFIG_DATA
-  #     - kubernetes/create-or-update-resource:
-  #         resource-file-path: deployment.yml 
-  #         show-kubectl-command: true
-
 workflows:
   build-and-deploy:
     jobs:
@@ -99,6 +81,3 @@ workflows:
       - publish-docker:
           requires:
             - build-docker
-      # - deploy:
-      #     requires:
-      #       - publish-docker
