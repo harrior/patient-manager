@@ -124,5 +124,4 @@
 
 (defn main
   []
-  (init)
   [patient-page])

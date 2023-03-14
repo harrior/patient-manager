@@ -1,4 +1,5 @@
 (ns patients.pages.patient-grid
+  "Patients page."
   (:require [re-frame.core :as rf]
             [patients.events :as events]
             [patients.nav :as nav]
@@ -21,13 +22,13 @@
 
 (rf/reg-event-db
  :store-patients-data
+ ^{:doc "Stores patient data in the app database."}
  (fn [db [_ params]]
    (assoc db
           :patients
           (->> params
                :data
-               :patients
-               reverse))))
+               :patients))))
 
 (rf/reg-event-fx
  :request-patients-list
@@ -42,7 +43,7 @@
 ;; Patients grid page
 ;;
 
-(defn- init []
+(defn init []
   (rf/dispatch [:request-patients-list]))
 
 (defn- page-header
@@ -87,7 +88,6 @@
 
 (defn main
   []
-  (init)
   [:div.container
    [page-header]
    [table-header]
