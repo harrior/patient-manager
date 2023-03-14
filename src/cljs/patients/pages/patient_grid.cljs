@@ -1,10 +1,12 @@
 (ns patients.pages.patient-grid
   "Patients page."
   (:require [re-frame.core :as rf]
+            [stylefy.core :refer [use-style]]
             [patients.events :as events]
             [patients.nav :as nav]
             [patients.components.locale :refer [locale]]
             [patients.components.table.core :as table]
+            [patients.components.styles :as styles]
             [patients.components.ui-elements :as ui]))
 
 ;;
@@ -48,7 +50,7 @@
 
 (defn- page-header
   []
-  [:header {:class "header"}
+  [:header (use-style styles/header)
    [:h1 (locale :app/title)]])
 
 (defn- table-header
@@ -88,7 +90,7 @@
 
 (defn main
   []
-  [:div.container
+  [:div (use-style styles/container)
    [page-header]
    [table-header]
    [table]

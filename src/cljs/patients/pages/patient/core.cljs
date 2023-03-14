@@ -1,9 +1,11 @@
 (ns patients.pages.patient.core
   (:require [re-frame.core :as rf]
+            [stylefy.core :refer [use-style]]
             [patients.components.locale :refer [locale]]
+            [patients.components.styles :as styles]
+            [patients.components.ui-elements :as ui]
             [patients.pages.patient.events :as evt]
             [patients.pages.patient.subs :as subs]
-            [patients.components.ui-elements :as ui]
             [patients.nav :as nav]))
 
 ;;
@@ -22,7 +24,7 @@
   []
   (let [patient-uid @(rf/subscribe [::subs/patient-uid])
         create-patient? @(rf/subscribe [::subs/new-patient?])]
-    [:header {:class "header"}
+    [:header (use-style styles/header)
      [:h1 (if create-patient?
             (locale :app/add-patient)
             (locale :app/edit-patient))]
@@ -113,7 +115,7 @@
 
 (defn patient-page
   []
-  [:div.container
+  [:div (use-style styles/container)
    [page-header]
    [:div {:style {:display :flex
                   :flex-direction :column

@@ -2,7 +2,34 @@
   (:require [reagent.core :as r]
             [reagent.dom :as rd]
             [re-frame.core :as rf]
+            [stylefy.core :refer [use-style] :as stylefy]
             [patients.components.locale :refer [locale]]))
+
+;;
+;; Styles
+;;
+
+(stylefy/keyframes "simple-animation"
+                   [:0% {:opacity 0}]
+                   [:50% {:opacity 0.8}]
+                   [:100% {:opacity 0}])
+
+(defn popup-style
+  [color]
+  {:display :block
+   :position :fixed
+   :bottom "25px"
+   :right "25px"
+   :min-width "200px"
+   :min-height "20px"
+   :background color
+   :border "1px solid black"
+   :border-radius "15px"
+   :color :white
+   :padding "20px"
+   :animation-name "simple-animation"
+   :animation-duration "3s"
+   :animation-iteration-count "forwards"})
 
 ;;
 ;; Popup
@@ -18,20 +45,7 @@
       :reagent-render
       (fn []
         (when @visible?
-          [:div {:style {:display :block
-                         :position :fixed
-                         :bottom 25
-                         :right 25
-                         :min-width 200
-                         :min-height 20
-                         :background color
-                         :border "1px solid black"
-                         :border-radius 15
-                         :color :white
-                         :font-size 16
-                         :padding 20
-                         :opacity 0.9
-                         :animation "show-and-hide 3s forwards"}} (locale message)]))})))
+          [:div (use-style (popup-style color)) (locale message)]))})))
 
 (defn show-popup
   [message color]
