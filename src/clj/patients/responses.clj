@@ -44,4 +44,4 @@
 (defn generate-not-found-error-response
   "Generates an error response indicating the requested patient isn't found"
   []
-  (generate-response {:status :error :data {:message "Patient not found"}}))
+  (generate-response {:status :error :data {:message :patient-not-found}}))

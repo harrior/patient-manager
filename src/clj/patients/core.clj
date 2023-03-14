@@ -19,3 +19,7 @@
                     :join? false})
 
   (log/info (str "System started.")))
+
+(comment
+  (-main)
+  )
