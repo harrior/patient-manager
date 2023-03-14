@@ -30,9 +30,8 @@
   ^{:doc "Configuraton for Migratus (test)."}
   migratus-config-test
   {:store :database
-   :migration-dir "migrationstest"
+   :migration-dir "migrations"
    :db db-spec-test})
-
 
 ;;
 ;; Data
