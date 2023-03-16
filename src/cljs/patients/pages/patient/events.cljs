@@ -1,4 +1,5 @@
 (ns patients.pages.patient.events
+  "Namespace for events related to the patient page."
   (:require [re-frame.core :as rf]
             [patients.events :as events]
             [patients.pages.patient.converters :as conv]
@@ -80,7 +81,8 @@
 (rf/reg-event-fx
  ::create-patient
  (fn [{:keys [db]} _]
-   (let [prepared-data (conv/prepare-patient-data-to-request db)
+   (let [prepared-data (conv/prepare-patient-data-to-request
+                        (select-keys db [:patient-address :patient-data :patient-name]))
          request {:method :create-patient
                   :params {:patient-data prepared-data}}]
      {:dispatch-n [[::clear-form-errors]
@@ -92,7 +94,8 @@
 (rf/reg-event-fx
  ::update-patient
  (fn [{:keys [db]} [_ patient-uid]]
-   (let [prepared-data (conv/prepare-patient-data-to-request db)]
+   (let [prepared-data (conv/prepare-patient-data-to-request
+                        (select-keys db [:patient-address :patient-data :patient-name]))]
      {:dispatch-n [[::clear-form-errors]
                    [::events/invoke
                     {:request

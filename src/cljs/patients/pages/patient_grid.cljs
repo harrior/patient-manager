@@ -34,6 +34,7 @@
 
 (rf/reg-event-fx
  :request-patients-list
+ ^{:doc "Requests the patients list and dispatches events on success or failure."}
  (fn [_ _]
    {:dispatch [::events/invoke
                {:request
@@ -45,9 +46,6 @@
 ;; Patients grid page
 ;;
 
-(defn init []
-  (rf/dispatch [:request-patients-list]))
-
 (defn- page-header
   []
   [:header (use-style styles/header)
@@ -56,42 +54,48 @@
 (defn- table-header
   []
   [table/table-header
-   {:buttons [^{:key :create-patient}
+   {:table-id :table
+    :buttons [^{:key :create-patient}
               [ui/button
                {:id :create-patient
                 :label :app/add-patient
-                :on-click #(rf/dispatch [::nav/set-active-page :patient])}]]
-    :id :table}])
+                :on-click #(rf/dispatch [::nav/set-active-page :patient])}]]}])
 
 (defn- table
   []
   [:div {:class "patient-container"}
    [table/table
-    {:id :table
-     :sub :patients
+    {:table-id :table
+     :data-source :patients
      :sorted-by :fullname
      :on-click-row (fn [patient]
                      (rf/dispatch [::nav/set-active-page :patient (:identifier patient)]))
      :fields [{:title :patient/fullname
-               :value :fullname
+               :value-key :fullname
                :filter-type :text-input}
               {:title :patient/gender
-               :value :gender
+               :value-key :gender
                :filter-type :select}
               {:title :patient/birthday
-               :value :birth-date
+               :value-key :birth-date
                :filter-type :date}
               {:title :address/text
-               :value :address
+               :value-key :address
                :filter-type :text-input}
               {:title :patient/insurance-number
-               :value :insurance-number
+               :value-key :insurance-number
                :filter-type :text-input}]}]])
 
-(defn main
+(defn- patients-page
   []
   [:div (use-style styles/container)
    [page-header]
    [table-header]
    [table]
    [ui/footer]])
+
+(defn main
+  []
+  (fn []
+    (rf/dispatch [:request-patients-list])
+    [patients-page]))

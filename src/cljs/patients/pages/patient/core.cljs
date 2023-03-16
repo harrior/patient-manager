@@ -1,4 +1,5 @@
 (ns patients.pages.patient.core
+  "Patient page."
   (:require [re-frame.core :as rf]
             [stylefy.core :refer [use-style]]
             [patients.components.locale :refer [locale]]
@@ -11,14 +12,6 @@
 ;;
 ;; Patient page
 ;;
-
-(defn init
-  []
-  (let [patient-uid @(rf/subscribe [::subs/patient-uid])]
-    (rf/dispatch [::evt/clear-form-errors])
-    (if (nil? patient-uid)
-      (rf/dispatch [::evt/clear-form])
-      (rf/dispatch [::evt/get-patient patient-uid]))))
 
 (defn page-header
   []
@@ -112,7 +105,6 @@
                      :field-id :district
                      :label :address/district}]]])
 
-
 (defn patient-page
   []
   [:div (use-style styles/container)
@@ -126,4 +118,10 @@
 
 (defn main
   []
-  [patient-page])
+  (fn []
+    (let [patient-uid @(rf/subscribe [::subs/patient-uid])]
+      (rf/dispatch [::evt/clear-form-errors])
+      (if (nil? patient-uid)
+        (rf/dispatch [::evt/clear-form])
+        (rf/dispatch [::evt/get-patient patient-uid])))
+    [patient-page]))

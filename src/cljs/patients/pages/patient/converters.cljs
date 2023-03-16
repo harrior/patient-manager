@@ -1,4 +1,5 @@
 (ns patients.pages.patient.converters
+  "Namespace for patient page converters."
   (:require [clojure.string :as s]
             [patients.components.helpers :as h]))
 
@@ -7,10 +8,12 @@
 ;;
 
 (defn prepare-patient-data-to-request
-  [db]
+  "Prepares the patient data for a request by joining,
+   removing empty values, and creating a map of patient information."
+  [patient]
   (let [{:keys [patient-address
                 patient-data
-                patient-name]} db
+                patient-name]} patient
 
         {:keys [family firstname patronymic]} patient-name
         {:keys [postal-code state city line district]} patient-address
@@ -44,6 +47,8 @@
                           :birth-date birth-date})))
 
 (defn convert-response-to-patient-data
+  "Converts a patient response to a patient data.
+   It removes empty values and creates a map of patient information."
   [{:keys [gender insurance-number birth-date]
     [{:keys [city state line postalCode district]}] :address
     [{:keys [family] [firstname patronymic] :given}] :name}]
@@ -64,6 +69,8 @@
                          :patronymic patronymic})})
 
 (defn transform-error-path
+  "Takes a collection of error paths and transforms them into
+   a map representing the locations of errors in the patient form."
   [error-paths]
   (reduce (fn [acc path]
             (let [form (first path)

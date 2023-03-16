@@ -1,4 +1,5 @@
 (ns patients.pages.patient.subs
+  "Namespace for subscriptions related to the patient page."
   (:require [re-frame.core :as rf]))
 
 (rf/reg-sub

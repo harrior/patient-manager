@@ -23,12 +23,9 @@
 ;;
 
 (defn router
+  "Returns a component for the currently active page."
   []
   (let [active-page @(rf/subscribe [:active-page])]
     (case active-page
-      :patients (do
-                  (patient-grid/init)
-                  [patient-grid/main])
-      :patient (do
-                 (patient-single/init)
-                 [patient-single/main]))))
+      :patients [patient-grid/main]
+      :patient [patient-single/main])))
