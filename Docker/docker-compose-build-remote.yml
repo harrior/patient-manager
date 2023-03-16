@@ -7,10 +7,8 @@ services:
       - "5432:5432"
     volumes:
       - /var/lib/postgresql/data/
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=medical
+    env_file:
+      - .env
 
   patients:
     depends_on:
@@ -19,11 +17,7 @@ services:
     image: harrior/patient-app:latest
     ports:
       - '8000:8000'
-    environment:
-      - POSTGRES_HOST=db
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=medical
-      - POSTGRES_TEST_DB=medicine_test
+    env_file:
+      - .env
     build:
       context: .
