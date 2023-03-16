@@ -1,4 +1,5 @@
 (ns patients.components.table.core
+  "This namespace provides the core functionality for table component."
   (:require [re-frame.core :as rf]
             [stylefy.core :refer [use-style] :as stylefy]
             [patients.components.locale :refer [locale]]
@@ -16,7 +17,6 @@
                   :border "1px solid #dddddd"})
 
 (def table-column-filter-style {:padding "4px"})
-
 
 (def table-column-style {:padding "5px 0 0"
                          :border "1px solid #dddddd"
@@ -38,75 +38,159 @@
                            :align-items :baseline})
 
 ;;
+;; Search box
+;;
+
+(defn search-box
+  "Creates a search box component for the table.
+
+  Args:
+  - table-id: The ID of the table."
+  [table-id]
+  [:div (use-style styles/search-box)
+   [:input (merge (use-style styles/search-box-field)
+                  {:placeholder (locale :app/search-placeholder)
+                   :value @(rf/subscribe [::table-subs/table-search-value table-id])
+                   :on-change (fn [e] (let [input-value (helpers/input-value-extractor e)]
+                                        (rf/dispatch [::table-events/set-table-search [table-id input-value]])))})]])
+
+;;
 ;; Table Header
 ;;
 
 (defn table-header
-  [{:keys [id buttons]}]
+  "Creates a table header component for the table with buttons and a search box.
+
+  Args:
+  - map with keys:
+    - table-id: The ID of the table.
+    - buttons: Collection of button components."
+  [{:keys [table-id buttons]}]
   [:div (use-style table-controls-style)
    [:div
     (doall
      (for [button buttons]
        button))]
-   [:div (use-style styles/search-box)
-    [:input (merge (use-style styles/search-box-field)
-                   {:placeholder (locale :app/search-placeholder)
-                    :value @(rf/subscribe [::table-subs/table-search-value id])
-                    :on-change (fn [e] (let [input-value (helpers/input-value-extractor e)]
-                                         (rf/dispatch [::table-events/set-table-search [id input-value]])))})]]])
+   [search-box table-id]])
 
 ;;
 ;; Table
 ;;
 
-(defn table
-  [{:keys [id sub fields sorted-by on-click-row]}]
-  (rf/dispatch [::table-events/init-table [id fields sorted-by]])
-  (let [items @(rf/subscribe [sub])
-        filters @(rf/subscribe [::table-subs/table-filtered-items id sub])]
-    [:table  (use-style table-style)
-     [:thead
-      [:tr
-       (doall
-        (for [field fields]
-          ^{:key field}
-          [:th (use-style table-column-style)
-           [:div (locale (:title field))]
-           [:div (use-style table-column-filter-style)]
-           (let [value (:value field)
-                 on-change-fn (fn [event] (let [input-value (helpers/input-value-extractor event)]
-                                            (rf/dispatch [::table-events/set-table-filters [id value input-value]])))
-                 field-value @(rf/subscribe [::table-subs/table-filter-value id value])
-                 common-fields (merge {:id value
-                                       :value field-value
-                                       :on-change on-change-fn}
-                                      (use-style styles/form-control-style))]
-             (case (:filter-type field)
-               :text-input [:input common-fields]
+(defn select-input
+  "Creates a select input component based on the provided data source.
 
-               :select (let [options (->> items
-                                          (map value)
-                                          set
-                                          sort)]
-                         [:select common-fields
-                          [:option {:value ".+" :default true} " "]
-                          (map (fn [value]
-                                 ^{:key value} [:option {:value (str "^" value "$")} value])
-                               options)])
+  Args:
+  - common-fields: A map of fields common to all options.
+  - map with keys:
+    - data-source: A re-frame subscription to the source of the data.
+    - value-key: A keyword representing the key used to extract values from the data."
+  [common-fields {:keys [data-source value-key]}]
+  (let [items @(rf/subscribe [data-source])
 
-               :date [:input (merge common-fields
-                                    {:type :date})]
-               [:div]))]))]]
-     [:tbody
-      (doall
-       (for [item filters]
-         ^{:key (random-uuid)}
-         [:tr
-          (merge
-           (use-style table-row-style)
-           (when on-click-row
-             {:on-click #(on-click-row item)}))
+        avaliable-options (->> items
+                               (map value-key)
+                               set
+                               sort)]
+    [:select common-fields
+     [:option {:value ".+" :default true} " "]
+     (map (fn [value]
+            ^{:key value} [:option {:value (str "^" value "$")} value])
+          avaliable-options)]))
 
+(defn- filter-field
+  "Creates a filter field component for a table based on the provided field type.
+
+  Args:
+  - props: A map with keys:
+    - table-id: Unique identifier for the table.
+    - data-source: A re-frame subscription to the source of the data.
+    - field: A map containing field properties such as value-key and filter-type."
+  [{:keys [table-id data-source field] :as props}]
+  (let [value-key (:value-key field)
+
+        on-change-fn (fn [event] (let [input-value (helpers/input-value-extractor event)]
+                                   (rf/dispatch [::table-events/set-table-filters [table-id value-key input-value]])))
+
+        field-value @(rf/subscribe [::table-subs/table-filter-value table-id value-key])
+
+        common-fields (merge {:id value-key
+                              :value field-value
+                              :on-change on-change-fn}
+                             (use-style styles/form-control-style))]
+    (case (:filter-type field)
+      :text-input [:input common-fields]
+
+      :select [select-input common-fields {:data-source data-source
+                                           :value-key value-key}]
+
+      :date [:input (merge common-fields
+                           {:type :date})]
+      :none [:div]
+      [:div])))
+
+(defn- columns-header
+  "Creates a table header row with column titles and filter fields.
+
+  Args:
+  - map with keys:
+    - table-id: Unique identifier for the table.
+    - data-source: A re-frame subscription to the source of the data.
+    - fields: A collection of field maps containing properties such as title, value-key, and filter-type."
+
+  [{:keys [table-id data-source fields]}]
+  [:thead
+   [:tr
+    (doall
+     (for [field fields]
+       ^{:key field}
+       [:th (use-style table-column-style)
+        [:div (locale (:title field))]
+        [:div (use-style table-column-filter-style)]
+        [filter-field {:table-id table-id
+                       :data-source data-source
+                       :field field}]]))]])
+
+(defn- columns
+  "Creates a table body with rows of data and optional click events for each row.
+
+  Args:
+  - map with keys:
+    - table-id: Unique identifier for the table.
+    - data-source: A re-frame subscription to the source of the data.
+    - fields: A collection of field maps containing properties such as title and value-key.
+    - on-click-row: Optional function to be called when a row is clicked."
+  [{:keys [table-id data-source fields on-click-row]}]
+  (let [filtered-items @(rf/subscribe [::table-subs/table-filtered-items table-id data-source])]
+    [:tbody
+     (doall
+      (for [item filtered-items]
+        ^{:key (random-uuid)}
+        [:tr (merge
+              (use-style table-row-style)
+              (when on-click-row
+                {:on-click #(on-click-row item)}))
+         (doall
           (for [field fields]
             ^{:key field}
-            [:td (use-style table-cell-style) ((:value field) item)])]))]]))
+            [:td (use-style table-cell-style) ((:value-key field) item)]))]))]))
+
+(defn- table-component
+  "Renders a table component with a header and columns of data.
+
+  Args:
+  - props: A map with keys for the `columns-header` and `columns` functions."
+  [props]
+  [:table (use-style table-style)
+   [columns-header props]
+   [columns props]])
+
+(defn table
+  "Renders a table with a given ID, fields, and sorted columns.
+
+  Args:
+  - props: A map containing table-id, fields, and sorted-by keys."
+  [{:keys [table-id fields sorted-by] :as props}]
+  (fn []
+    (rf/dispatch [::table-events/init-table [table-id fields sorted-by]])
+    [table-component props]))

@@ -1,4 +1,5 @@
 (ns patients.components.table.subs
+  "This namespace contains re-frame subscriptions for the table component."
   (:require (clojure.string :as s)
             [re-frame.core :as rf]
             [patients.components.table.helpers :as table-helpers]))
@@ -32,8 +33,11 @@
 
 (rf/reg-sub
  ::table-filtered-items
- (fn [[_ table-id sub]]
-   [(rf/subscribe [sub])
+ ^{:doc
+    "A re-frame subscription that returns a sequence of items filtered and sorted
+    according to the table settings, such as filters, search value, and sorting order."}
+ (fn [[_ table-id data-source]]
+   [(rf/subscribe [data-source])
     (rf/subscribe [::table-filters table-id])
     (rf/subscribe [::table-search-value table-id])
     (rf/subscribe [::table-fields table-id])
