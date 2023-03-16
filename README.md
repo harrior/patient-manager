@@ -53,7 +53,7 @@ The application runs on port 8000 by default: `http://localhost:8000/`.
 
 ### Running the Container from DockerHub
 
-1. Run the project in a container with the DockerHub image: `Docker/docker-compose-build-remote.yml`.
+Run the project in a container with the DockerHub image: `Docker/docker-compose-build-remote.yml`.
 
 ### Kubernetes
 
@@ -72,7 +72,7 @@ To run tests, use `lein test`. Integration tests are used, so a database connect
 
 This section provides an overview of the project structure, explaining the purpose of key files and folders.
 
-.
+```
 ├── Docker                     # Docker configuration files
 │
 ├── resources                  # Application resources
@@ -99,6 +99,7 @@ This section provides an overview of the project structure, explaining the purpo
 ├── package.json               # Node.js dependencies
 ├── project.clj                # Clojure project configuration
 └── shadow-cljs.edn            # ClojureScript build configuration
+```
 
 ## API Documentation
 
@@ -133,7 +134,7 @@ The response will be formatted as follows:
 {:status <status-code> :data {<data-key> <data-value> ...}}
 ```
 
-- <status-code>: The HTTP status code for the response (as a keyword).
+- <status-code>: status code for the response (as a keyword).
 - <data-key>: The data key (as a keyword).
 - <data-value>: The corresponding value for the data key.
 
@@ -149,7 +150,7 @@ The following status codes are used in the API responses:
 - `:ok`: The operation was successful.
 - `:error`: There was an error during the operation.
 
-###HTTP Status Codes
+### HTTP Status Codes
 - `200 OK`: The request was successful, and the response contains the requested data.
 - `400 Bad Request`: The request was malformed or invalid. This status code is used for validation errors, such as issues with the provided parameters.
 - `500 Internal Server Error`: A server-side error occurred while processing the request. This status code is used for all other errors that are not related to validation issues.
@@ -185,7 +186,7 @@ The following methods are available:
 
 For each method, detailed descriptions of the parameters, expected request and response formats, and error handling are provided below.
 
-#### :status*
+#### :status
 *Purpose:* Check the backend status and ensure it's up and running.
 *Parameters:* None.
 *Response format:* A map containing a :message key with the value "Backend is up and running".
