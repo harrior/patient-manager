@@ -8,7 +8,6 @@
 
                  ;; Database
                  [com.github.seancorfield/next.jdbc "1.3.847"]
-                 [com.github.seancorfield/honeysql "2.4.980"]
                  [org.postgresql/postgresql "42.1.4"]
                  [migratus "1.4.9"]
 
