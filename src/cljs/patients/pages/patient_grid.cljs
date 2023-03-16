@@ -68,23 +68,30 @@
     {:table-id :table
      :data-source :patients
      :sorted-by :fullname
+
      :on-click-row (fn [patient]
                      (rf/dispatch [::nav/set-active-page :patient (:identifier patient)]))
+
      :fields [{:title :patient/fullname
                :value-key :fullname
-               :filter-type :text-input}
+               :filter-type :text-input
+               :column-width "25%"}
               {:title :patient/gender
                :value-key :gender
-               :filter-type :select}
+               :filter-type :select
+               :column-width "10%"}
               {:title :patient/birthday
                :value-key :birth-date
-               :filter-type :date}
+               :filter-type :date
+               :column-width "15%"}
               {:title :address/text
                :value-key :address
-               :filter-type :text-input}
+               :filter-type :text-input
+               :column-width "35%"}
               {:title :patient/insurance-number
                :value-key :insurance-number
-               :filter-type :text-input}]}]])
+               :filter-type :text-input
+               :column-width "15%"}]}]])
 
 (defn- patients-page
   []

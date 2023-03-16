@@ -143,13 +143,18 @@
    [:tr
     (doall
      (for [field fields]
-       ^{:key field}
-       [:th (use-style table-column-style)
-        [:div (locale (:title field))]
-        [:div (use-style table-column-filter-style)]
-        [filter-field {:table-id table-id
-                       :data-source data-source
-                       :field field}]]))]])
+       (let [column-width (:column-width field)]
+         ^{:key field}
+         [:th (use-style (merge table-column-style
+                                (when column-width
+                                  {:width column-width
+                                   :max-width column-width
+                                   :min-width column-width})))
+          [:div (locale (:title field))]
+          [:div (use-style table-column-filter-style)]
+          [filter-field {:table-id table-id
+                         :data-source data-source
+                         :field field}]])))]])
 
 (defn- columns
   "Creates a table body with rows of data and optional click events for each row.
