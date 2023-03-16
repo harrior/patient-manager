@@ -33,14 +33,20 @@
 
 (rf/reg-event-fx
  ::successful-update
- (fn [_ _]
-   {:dispatch [::popup/show-success-popup :app/success-updated]}))
+ (fn [_ [_ {:keys [status data]}]]
+   (case status
+     :validate-error {:dispatch-n [[::show-form-validation-errors data conv/transform-error-path]
+                                   [::popup/show-error-popup :app/validation-error]]}
+     :ok {:dispatch [::popup/show-success-popup :app/success-updated]})))
 
 (rf/reg-event-fx
  ::successful-create
- (fn [_ [_ {:keys [data]}]]
-   {:dispatch-n [[::popup/show-success-popup :app/success-created]
-                 [::nav/set-active-page :patient (:patient-identifier data)]]}))
+ (fn [_ [_ {:keys [status data]}]]
+   (case status
+     :validate-error {:dispatch-n [[::show-form-validation-errors data conv/transform-error-path]
+                                   [::popup/show-error-popup :app/validation-error]]}
+     :ok {:dispatch-n [[::popup/show-success-popup :app/success-created]
+                       [::nav/set-active-page :patient (:patient-identifier data)]]})))
 
 (rf/reg-event-fx
  ::successful-delete
@@ -51,11 +57,8 @@
 (rf/reg-event-fx
  ::error-response
  (fn [_ [_ {:keys [response]}]]
-   (let [{:keys [status data]} response]
-     (case status
-       :validate-error {:dispatch-n [[::show-form-validation-errors data conv/transform-error-path]
-                                     [::popup/show-error-popup :app/validation-error]]}
-       {:dispatch [::popup/show-error-popup :app/bad-request]}))))
+   (let [_ response]
+     {:dispatch [::popup/show-error-popup :app/bad-request]})))
 
 ;; CRUD
 

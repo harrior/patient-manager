@@ -18,16 +18,11 @@
   Raises:
     Exception: If `status` parameter is invalid."
   [{:keys [status data]}]
-  (let [status-code (case status
-                      :ok 200
-                      :error 500
-                      :validate-error 400
-                      (throw (Exception. (str "Invalid status value: " status))))]
-    {:status status-code
-     :headers {"Content-Type" "application/edn"}
-     :body (pr-str (merge {:status status}
-                          (when data
-                            {:data data})))}))
+  {:status 200
+   :headers {"Content-Type" "application/edn"}
+   :body (pr-str (merge {:status status}
+                        (when data
+                          {:data data})))})
 
 (defn generate-validate-error-response
   "Generates a response with a validation error status and error paths from the given patient data."

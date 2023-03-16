@@ -23,7 +23,7 @@
 
 (deftest handler-not-exists-method-test
   (is (= (make-edn-post-request "/rpc" {:method :some-method})
-         {:status 500
+         {:status 200
           :headers {"Content-Type" "application/edn"}
           :body {:status :error, :data {:text "Method :some-method not implemented."}}})))
 

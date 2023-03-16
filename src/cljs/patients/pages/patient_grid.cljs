@@ -5,8 +5,9 @@
             [patients.events :as events]
             [patients.nav :as nav]
             [patients.components.locale :refer [locale]]
-            [patients.components.table.core :as table]
+            [patients.components.popup :as popup]
             [patients.components.styles :as styles]
+            [patients.components.table.core :as table]
             [patients.components.ui-elements :as ui]))
 
 ;;
@@ -40,7 +41,7 @@
                {:request
                 {:method :list-patients}
                 :on-success [:store-patients-data]
-                :on-failure [::ui/show-error-popup :app/bad-request]}]}))
+                :on-failure [::popup/show-error-popup :app/bad-request]}]}))
 
 ;;
 ;; Patients grid page

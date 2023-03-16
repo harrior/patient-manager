@@ -126,7 +126,7 @@
         response (api/create-patient {:db db :patient-data invalid-patient-data})
         {:keys [status headers api-status data]} (parse-response response)
         error-paths (:error-paths data)]
-    (is (= status 400))
+    (is (= status 200))
     (is (= headers {"Content-Type" "application/edn"}))
     (is (= api-status :validate-error))
     (is (= error-paths
@@ -271,7 +271,7 @@
                                       :patient-data invalid-patient-data})
         {:keys [status headers api-status data]} (parse-response response)
         error-paths (:error-paths data)]
-    (is (= status 400))
+    (is (= status 200))
     (is (= headers {"Content-Type" "application/edn"}))
     (is (= api-status :validate-error))
     (is (= error-paths

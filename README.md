@@ -107,7 +107,7 @@ This section provides documentation for the API, which uses the RPC (Remote Proc
 
 ### Overview
 
-The API provides CRUD operations for managing patient data in the database. It allows users to create, read, update, and delete patient records. The API has a single endpoint: `/rpc`.
+The API provides CRUD operations for managing patient data in the database. It allows users to create, read, update, and delete patient records. The API has a single endpoint: `/rpc` and receives `POST` requests only.
 
 ### Request and Response Formats, Status Codes, and Errors
 #### Request Format
@@ -151,9 +151,7 @@ The following status codes are used in the API responses:
 - `:error`: There was an error during the operation.
 
 ### HTTP Status Codes
-- `200 OK`: The request was successful, and the response contains the requested data.
-- `400 Bad Request`: The request was malformed or invalid. This status code is used for validation errors, such as issues with the provided parameters.
-- `500 Internal Server Error`: A server-side error occurred while processing the request. This status code is used for all other errors that are not related to validation issues.
+- `200 OK`: The request was successful, and the response contains the requested data (or error with extra data).
 
 ### Errors
 Errors can occur for various reasons, such as invalid data or server-side issues. When an error occurs, the response will include a description of the error. The error response will be formatted as follows:
