@@ -33,6 +33,9 @@
         :app/success-updated "Запись сохранена"
         :app/success-created "Запись создана"
         :app/validation-error "Ошибка валидации: одно или несколько полей заполнены неверно"
+        :app/confirm-deletion "Удалить пациента?"
+        :app/yes "Да"
+        :app/no "Нет"
 
         :patient/fullname "ФИО"
         :patient/gender "Пол"
@@ -63,6 +66,9 @@
         :app/success-updated "Record saved"
         :app/success-created "Record created"
         :app/validation-error "Validation error: one or more fields are filled incorrectly."
+        :app/confirm-deletion "Remove patient?"
+        :app/yes "Yes"
+        :app/no "No"
 
         :patient/fullname "Name"
         :patient/gender "Gender"

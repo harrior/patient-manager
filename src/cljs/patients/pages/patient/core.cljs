@@ -2,6 +2,7 @@
   "Patient page."
   (:require [re-frame.core :as rf]
             [stylefy.core :refer [use-style]]
+            [patients.components.confirm :as confirm]
             [patients.components.locale :refer [locale]]
             [patients.components.styles :as styles]
             [patients.components.ui-elements :as ui]
@@ -18,7 +19,8 @@
   (let [patient-uid @(rf/subscribe [::subs/patient-uid])
         create-patient? @(rf/subscribe [::subs/new-patient?])]
 
-    [:div {:style {:display :flex}}
+    [:div (use-style {:display :flex
+                      :padding "20px 0"})
      [ui/button {:id :open-grid-button
                  :label :app/patients-list
                  :on-click #(rf/dispatch [::nav/set-active-page :patients])}]
@@ -115,6 +117,7 @@
                        :gap "10"})
       [patient-data]
       [patient-address]]
+     [confirm/confirm]
      [ui/footer]]))
 
 (defn main

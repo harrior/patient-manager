@@ -3,6 +3,7 @@
   (:require [re-frame.core :as rf]
             [patients.events :as events]
             [patients.pages.patient.converters :as conv]
+            [patients.components.confirm :as confirm]
             [patients.components.popup :as popup]
             [patients.nav :as nav]))
 
@@ -112,9 +113,11 @@
  ::delete-patient
  (fn [_ [_ patient-uid]]
    {:dispatch-n [[::clear-form-errors]
-                 [::events/invoke
-                  {:request
-                   {:method :delete-patient
-                    :params {:patient-identifier patient-uid}}
-                   :on-success [::successful-delete]
-                   :on-failure [::error-response]}]]}))
+                 [::confirm/show-confirm-dialog
+                  {:message :app/confirm-deletion
+                   :on-yes [::events/invoke
+                            {:request
+                             {:method :delete-patient
+                              :params {:patient-identifier patient-uid}}
+                             :on-success [::successful-delete]
+                             :on-failure [::error-response]}]}]]}))
