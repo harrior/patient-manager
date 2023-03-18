@@ -109,19 +109,19 @@
   []
   [:div (use-style styles/container)
    [page-header]
-   [:div {:style {:display :flex
-                  :flex-direction :column
-                  :gap 10}}
+   [:div (use-style {:style {:display :flex
+                             :flex-direction :column
+                             :gap 10}})
     [patient-data]
     [patient-address]
     [ui/footer]]])
 
 (defn main
   []
+  (let [patient-uid @(rf/subscribe [::subs/patient-uid])]
+    (rf/dispatch [::evt/clear-form-errors])
+    (if (nil? patient-uid)
+      (rf/dispatch [::evt/clear-form])
+      (rf/dispatch [::evt/get-patient patient-uid])))
   (fn []
-    (let [patient-uid @(rf/subscribe [::subs/patient-uid])]
-      (rf/dispatch [::evt/clear-form-errors])
-      (if (nil? patient-uid)
-        (rf/dispatch [::evt/clear-form])
-        (rf/dispatch [::evt/get-patient patient-uid])))
     [patient-page]))

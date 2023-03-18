@@ -60,8 +60,6 @@
    (let [_ response]
      {:dispatch [::popup/show-error-popup :app/bad-request]})))
 
-;; CRUD
-
 (rf/reg-event-db
  ::store-patient-data
  (fn [db [_ response]]
@@ -70,6 +68,8 @@
                      :patient
                      conv/convert-response-to-patient-data)]
      (merge db patient))))
+
+;; CRUD
 
 (rf/reg-event-fx
  ::get-patient

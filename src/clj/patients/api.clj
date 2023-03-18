@@ -106,22 +106,3 @@
         (do (sql/update! db :patients {:patient patient-data} {:id patient-identifier})
             (responses/generate-response {:status :ok
                                           :data {:patients patient-data}}))))
-
-(defn update-patient
-  "Updates a patient's data in the database.
-   :db - the JDBC database connection
-   :patient-identifier - the string of the patient's UUID to update
-   :patient-data - the map with all patient data to insert into the database"
-  [{:keys [db patient-identifier patient-data]}]
-  (cond (not (validate/patient-identifier-valid? patient-identifier))
-        (responses/generate-incorrect-patient-id-error-response)
-
-        (nil? (get-patient-by-id db patient-identifier))
-        (responses/generate-not-found-error-response)
-
-        (not (validate/patient-is-valid? patient-data))
-        (responses/generate-validate-error-response patient-data)
-
-        :else
-        (do (sql/update! db :patients {:patient patient-data} {:id patient-identifier})
-            (responses/generate-response {:status :ok :data {:patients patient-data}}))))

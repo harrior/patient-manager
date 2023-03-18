@@ -9,9 +9,11 @@
 
 (defn init
   []
+  (rf/dispatch-sync [::db/initialize])
   (stylefy/init {:dom (stylefy-reagent/init)})
-  [router])
+  (fn []
+    [router]))
 
 ;; Entry point
-(rf/dispatch-sync [::db/initialize])
+
 (rdom/render [init] (js/document.getElementById "app"))

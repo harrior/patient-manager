@@ -64,7 +64,7 @@
 
 (defn- table
   []
-  [:div {:class "patient-container"}
+  [:div
    [table/table
     {:table-id :table
      :data-source :patients
@@ -104,6 +104,6 @@
 
 (defn main
   []
+  (rf/dispatch [:request-patients-list])
   (fn []
-    (rf/dispatch [:request-patients-list])
     [patients-page]))

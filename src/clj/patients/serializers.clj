@@ -15,10 +15,7 @@
       - :address: The patient's address.
       - :gender: The patient's gender.
       - :birth-date: The patient's birth date.
-      - :identifier: The patient's identifier.
-
-  Raises:
-    Exception: If any required fields are missing in the `patient` record."
+      - :identifier: The patient's identifier."
   [patient-record]
   (let [patient (:patients/patient patient-record)
         identifier (:patients/id patient-record)

@@ -12,22 +12,22 @@ jobs:
   build-and-test:
     working_directory: ~/build
     docker:
-      - image: ubuntu
+      - image: ubuntu:22.04
 
       - image: postgres:13.0-alpine
         environment:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: medical 
+          POSTGRES_DB: medical
 
     steps:
       - checkout
-      - run: 
+      - run:
           name: Install Node.js, Leiningen, and npm
-          command: | 
+          command: |
                     apt update -y
                     apt install -y leiningen curl
-                    curl -fsSL https://deb.nodesource.com/setup_19.x | bash - 
+                    curl -fsSL https://deb.nodesource.com/setup_19.x | bash -
                     apt install -y nodejs
                     npm install
       - run: lein deps
@@ -38,7 +38,7 @@ jobs:
           paths:
             - target
             - Docker
-    
+
   build-docker:
     executor: docker-publisher
     steps:

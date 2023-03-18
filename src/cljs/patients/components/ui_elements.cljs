@@ -62,7 +62,8 @@
                 (doall
                  (for [{:keys [id text params] :or {params {}}} options]
                    ^{:key id} [:option (assoc params :value id) (locale (or text id))]))]
-       :date [:input (assoc common-props :type :date)])]))
+       :date [:input (assoc common-props
+                            :type :date)])]))
 
 (defn input-field
   [props]
@@ -110,4 +111,4 @@
 
 (defn footer
   []
-  [:footer (use-style styles/header)])
+  [:footer (use-style styles/footer)])
