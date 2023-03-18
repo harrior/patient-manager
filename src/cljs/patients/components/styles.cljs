@@ -1,4 +1,5 @@
 (ns patients.components.styles
+  "Namespace for defining styles used in components."
   (:require [stylefy.core :as stylefy]))
 
 (def header {:padding "20px 0"})

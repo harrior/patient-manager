@@ -1,4 +1,5 @@
 (ns patients.components.locale
+  "A namespace for handling the localization of the application."
   (:require [re-frame.core :as rf]))
 
 ;;
@@ -7,6 +8,7 @@
 
 (rf/reg-sub
  :current-lang
+ ^{:doc "Returns current language of the application."}
  (fn [db _]
    (or (get-in db [:app :lang])
        :ru)))
@@ -77,6 +79,7 @@
         :address/district "District"}})
 
 (defn locale
+  "Retrieves the localized string for the given key."
   ([key]
    (let [lang @(rf/subscribe [:current-lang])]
      (locale lang key)))

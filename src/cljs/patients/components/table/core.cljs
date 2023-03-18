@@ -181,7 +181,7 @@
             [:td (use-style table-cell-style) ((:value-key field) item)]))]))]))
 
 (defn- table-component
-  "Renders a table component with a header and columns of data.
+  "Create a table with a given ID, fields, and sorted columns.
 
   Args:
   - props: A map with keys for the `columns-header` and `columns` functions."
@@ -191,11 +191,46 @@
    [columns props]])
 
 (defn table
-  "Renders a table with a given ID, fields, and sorted columns.
+  "Create a table with a given ID, fields, and sorted columns.
 
-  Args:
-  - props: A map containing table-id, fields, and sorted-by keys."
+   Params:
+   - :table-id: The unique ID of the table.
+   - :data-source: The data source for the table (e.g., :patients).
+   - :sorted-by: The default column to sort the table by.
+   - :on-click-row: A function to handle the on-click event for a row in the table.
+   - :fields: A vector of maps containing the following properties for each field:
+     - :title: The title of the column.
+     - :value-key: The key used to retrieve the value from the data source.
+     - :filter-type: The type of filter for the column (:text-input, :select, or :date).
+     - :column-width: The width of the column (e.g., \"25%\").
+
+  Example usage:
+
+   [table/table
+    {:table-id :table
+     :data-source :patients
+     :sorted-by :fullname
+
+     :on-click-row (fn [patient]
+                     (rf/dispatch [::nav/set-active-page :patient (:identifier patient)]))
+
+     :fields [{:title :patient/fullname
+               :value-key :fullname
+               :filter-type :text-input
+               :column-width \"25%\"}
+              {:title :patient/gender
+               :value-key :gender
+               :filter-type :select
+               :column-width \"10%\"}
+              {:title :patient/birthday
+               :value-key :birth-date
+               :filter-type :date
+               :column-width \"15%\"}
+              {:title :address/text
+               :value-key :address
+               :filter-type :text-input
+               :column-width \"35%\"}]}]])"
   [{:keys [table-id fields sorted-by] :as props}]
-  (fn []
-    (rf/dispatch [::table-events/init-table [table-id fields sorted-by]])
+  (rf/dispatch [::table-events/init-table [table-id fields sorted-by]])
+  (fn [props]
     [table-component props]))
