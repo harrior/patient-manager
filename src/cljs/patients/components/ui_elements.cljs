@@ -4,6 +4,7 @@
             [stylefy.core :refer [use-style]]
             [patients.components.locale :refer [locale]]
             [patients.components.helpers :as h]
+            [patients.components.popup :refer [popup]]
             [patients.components.styles :as styles]))
 
 ;;
@@ -138,7 +139,13 @@
                      :width "100%"})
     children]))
 
+(defn header
+  "Table header."
+  [label]
+  [:header (use-style styles/header)
+   [:h1 (locale label)]])
+
 (defn footer
   "Footer component."
   []
-  [:footer (use-style styles/footer)])
+  [popup])

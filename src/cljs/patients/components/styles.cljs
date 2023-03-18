@@ -51,4 +51,4 @@
           :border-radius "10px"
           :line-height "40px"}))
 
-(def search-box {:width "200px"})
+(def search-box {:width "300px"})

@@ -34,7 +34,7 @@
 (def table-controls-style {:display :flex
                            :direction :row
                            :justify-content :space-between
-                           :padding "10px 0"
+                           :padding "20px 0"
                            :align-items :baseline})
 
 ;;

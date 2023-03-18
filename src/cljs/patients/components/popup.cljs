@@ -1,6 +1,5 @@
 (ns patients.components.popup
   (:require [reagent.core :as r]
-            [reagent.dom :as rd]
             [re-frame.core :as rf]
             [stylefy.core :refer [use-style] :as stylefy]
             [patients.components.locale :refer [locale]]))
@@ -35,44 +34,69 @@
 ;; Popup
 ;;
 
-(defn popup
+(defn popup-component
+  "Popup component that will display a message with a specific color and
+   automatically close after 3 seconds.
+
+   Params:
+    - message: The text content of the popup.
+    - color: The background color of the popup."
   [message color]
-  (let [visible? (r/atom true)]
-    (r/create-class
-     {:component-did-mount
-      (fn []
-        (js/setTimeout #(reset! visible? false) 3000))
-      :reagent-render
-      (fn []
-        (when @visible?
-          [:div (use-style (popup-style color)) (locale message)]))})))
-
-(defn show-popup
-  [message color]
-  (let [container (js/document.createElement "div")]
-    (js/document.body.appendChild container)
-    (rd/render [popup message color] container)))
-
-(defn show-error-popup
-  [message]
-  (show-popup message :red))
-
-(defn show-success-popup
-  [message]
-  (show-popup message :green))
+  (r/create-class
+   {:component-did-mount
+    (fn []
+      (js/setTimeout #(rf/dispatch [::remove-popup]) 3000))
+    :reagent-render
+    (fn []
+      [:div (use-style (popup-style color)) (locale message)])}))
 
 ;;
 ;; Events
 ;;
 
-(rf/reg-event-fx
+(rf/reg-event-db
  ::show-error-popup
- (fn [_ [_ message]]
-   (show-error-popup message)
-   {}))
+ ^{:doc
+   "Shows an error popup with a red background color.
 
-(rf/reg-event-fx
+    Params:
+     - message: The text content of the error popup."}
+ (fn [db [_ message]]
+   (assoc db :popup [popup-component message :red])))
+
+(rf/reg-event-db
  ::show-success-popup
- (fn [_ [_ message]]
-   (show-success-popup message)
-   {}))
+ ^{:doc
+   "Shows an error popup with a green background color.
+
+    Params:
+     - message: The text content of the success popup."}
+ (fn [db [_ message]]
+   (assoc db :popup [popup-component message :green])))
+
+(rf/reg-event-db
+ ::remove-popup
+ ^{:doc "Removes the active popup from the application state."}
+ (fn [db _]
+   (assoc db :popup nil)))
+
+;;
+;; Subs
+;;
+
+(rf/reg-sub
+ :active-popup
+ ^{:doc "Returns the active popup component."}
+ (fn [db _]
+   (get db :popup)))
+
+;;
+;; Include
+;;
+
+(defn popup
+  "Function to include the active popup to a page."
+  []
+  (let [current-popup @(rf/subscribe [:active-popup])]
+    (when current-popup
+      [:<> ^{:key (str (rand-int 1000000))} current-popup])))

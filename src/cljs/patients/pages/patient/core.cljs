@@ -13,30 +13,27 @@
 ;; Patient page
 ;;
 
-(defn page-header
+(defn form-header
   []
   (let [patient-uid @(rf/subscribe [::subs/patient-uid])
         create-patient? @(rf/subscribe [::subs/new-patient?])]
-    [:header (use-style styles/header)
-     [:h1 (if create-patient?
-            (locale :app/add-patient)
-            (locale :app/edit-patient))]
-     [:div {:style {:display :flex}}
-      [ui/button {:id :open-grid-button
-                  :label :app/patients-list
-                  :on-click #(rf/dispatch [::nav/set-active-page :patients])}]
-      [ui/spacer]
-      (if create-patient?
-        [ui/button {:id :create-patient-button
-                    :label :app/create-patient
-                    :on-click #(rf/dispatch [::evt/create-patient])}]
-        [:div
-         [ui/button {:id :save-patient-button
-                     :label :app/save-patient
-                     :on-click #(rf/dispatch [::evt/update-patient patient-uid])}]
-         [ui/button {:id :delete-patient-button
-                     :label :app/delele-patient
-                     :on-click #(rf/dispatch [::evt/delete-patient patient-uid])}]])]]))
+
+    [:div {:style {:display :flex}}
+     [ui/button {:id :open-grid-button
+                 :label :app/patients-list
+                 :on-click #(rf/dispatch [::nav/set-active-page :patients])}]
+     [ui/spacer]
+     (if create-patient?
+       [ui/button {:id :create-patient-button
+                   :label :app/create-patient
+                   :on-click #(rf/dispatch [::evt/create-patient])}]
+       [:div
+        [ui/button {:id :save-patient-button
+                    :label :app/save-patient
+                    :on-click #(rf/dispatch [::evt/update-patient patient-uid])}]
+        [ui/button {:id :delete-patient-button
+                    :label :app/delele-patient
+                    :on-click #(rf/dispatch [::evt/delete-patient patient-uid])}]])]))
 
 (defn patient-data
   []
@@ -107,14 +104,18 @@
 
 (defn patient-page
   []
-  [:div (use-style styles/container)
-   [page-header]
-   [:div (use-style {:style {:display :flex
-                             :flex-direction :column
-                             :gap 10}})
-    [patient-data]
-    [patient-address]
-    [ui/footer]]])
+  (let [create-patient? @(rf/subscribe [::subs/new-patient?])]
+    [:div (use-style styles/container)
+     [ui/header (if create-patient?
+                  (locale :app/add-patient)
+                  (locale :app/edit-patient))]
+     [form-header]
+     [:div (use-style {:display :flex
+                       :flex-direction :column
+                       :gap "10"})
+      [patient-data]
+      [patient-address]]
+     [ui/footer]]))
 
 (defn main
   []
