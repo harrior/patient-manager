@@ -56,7 +56,7 @@
         :else
         (let [patient (get-patient-by-id db patient-identifier)]
           (responses/generate-response {:status :ok
-                                        :data {:patient (assoc patient :identifier patient-identifier)}}))))
+                                        :data {:patient patient}}))))
 
 (defn create-patient
   "Creates a new patient.
@@ -69,7 +69,7 @@
 
     (let [new-patient-uuid (java.util.UUID/randomUUID)
           data {:id new-patient-uuid
-                :patient (assoc patient-data :identifier new-patient-uuid)}]
+                :patient patient-data}]
       (sql/insert! db :patients data)
       (responses/generate-response {:status :ok
                                     :data {:patient-identifier new-patient-uuid}}))))
@@ -103,6 +103,8 @@
         (responses/generate-validate-error-response patient-data)
 
         :else
-        (do (sql/update! db :patients {:patient patient-data} {:id patient-identifier})
+        (do (sql/update! db :patients
+                         {:patient patient-data}
+                         {:id patient-identifier})
             (responses/generate-response {:status :ok
                                           :data {:patients patient-data}}))))
