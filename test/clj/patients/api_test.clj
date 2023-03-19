@@ -1,5 +1,5 @@
 (ns patients.api-test
-  (:require [clojure.test :refer :all]
+  (:require [clojure.test :refer [use-fixtures deftest is]]
             [next.jdbc :as jdbc]
             [next.jdbc.sql :as sql]
             [migratus.core :as migratus]
@@ -119,6 +119,7 @@
     (is (= headers {"Content-Type" "application/edn"}))
     (is (= api-status :ok))
     (is (uuid? patient-identifier))
+    (println patient-identifier)
     (is (= (dissoc patient-from-db :identifier) valid-patient-data))))
 
 (deftest test-create-patient-with-invalid-data
@@ -248,11 +249,14 @@
   (let [db (mock-db-conn)]
 
     (is (= (responses/generate-incorrect-patient-id-error-response)
-           (api/update-patient {:db db :patient-identifier "just-string"})))
+           (api/update-patient {:db db :patient-identifier "just-string"
+                                :patient-data valid-patient-data})))
     (is (= (responses/generate-incorrect-patient-id-error-response)
-           (api/update-patient {:db db :patient-identifier 12312313})))
+           (api/update-patient {:db db :patient-identifier 12312313
+                                :patient-data valid-patient-data})))
     (is (= (responses/generate-incorrect-patient-id-error-response)
-           (api/update-patient {:db db :patient-identifier nil})))))
+           (api/update-patient {:db db :patient-identifier nil
+                                :patient-data valid-patient-data})))))
 
 (deftest test-update-patient-nonexistent-patient
   (let [db (mock-db-conn)]

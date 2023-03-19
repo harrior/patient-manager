@@ -1,5 +1,5 @@
 (ns patients.routes-test
-  (:require [clojure.test :refer :all]
+  (:require [clojure.test :refer [deftest is]]
             [patients.routes :as routes]
             [ring.mock.request :as mock]))
 

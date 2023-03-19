@@ -1,5 +1,5 @@
 (ns patients.responses-test
-  (:require [clojure.test :refer :all]
+  (:require [clojure.test :refer [deftest is]]
             [patients.responses :as responses]))
 
 (deftest generate-response-test

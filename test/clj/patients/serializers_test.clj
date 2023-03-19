@@ -1,5 +1,5 @@
 (ns patients.serializers-test
-  (:require [clojure.test :refer :all]
+  (:require [clojure.test :refer [deftest is]]
             [patients.serializers :as serializers]))
 
 (deftest patient-serialiser-test

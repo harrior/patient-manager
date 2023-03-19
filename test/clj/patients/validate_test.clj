@@ -1,5 +1,5 @@
 (ns patients.validate-test
-  (:require [clojure.test :refer :all]
+  (:require [clojure.test :refer [deftest is]]
             [clojure.spec.alpha :as spec]
             [patients.validate :as validate]))
 

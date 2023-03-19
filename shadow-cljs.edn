@@ -1,5 +1,6 @@
 {:lein true
  :nrepl {:port 7979}
+ :source-paths ["src/cljs" "test/cljs"]
 
  :build-defaults
  {:output-dir "resources/public/js"
@@ -15,4 +16,10 @@
 
   :re-frisk-embedded
   {:target :browser
-   :devtools {:preloads [re-frisk.preload]}}}}
+   :devtools {:preloads [re-frisk.preload]}}
+
+  :test
+  {:target    :node-test
+   :output-to "target/test.js"
+   :ns-regexp "-test$"
+   :autorun   true}}}
