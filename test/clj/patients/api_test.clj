@@ -119,7 +119,6 @@
     (is (= headers {"Content-Type" "application/edn"}))
     (is (= api-status :ok))
     (is (uuid? patient-identifier))
-    (println patient-identifier)
     (is (= (dissoc patient-from-db :identifier) valid-patient-data))))
 
 (deftest test-create-patient-with-invalid-data

@@ -64,7 +64,6 @@
  ::show-confirm-dialog
  ^{:doc "Shows confirm dialogue."}
  (fn [db [_ {:keys [message on-yes on-no]}]]
-   (println message on-yes on-no)
    (assoc db :confirm-dialog {:message message
                              :on-yes on-yes
                              :on-no on-no})))
